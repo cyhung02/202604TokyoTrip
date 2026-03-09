@@ -108,6 +108,28 @@ body {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .sakura-petal {
+    animation: none;
+    opacity: 0.3;
+  }
+  
+  .hero-scroll {
+    animation: none;
+  }
+  
+  .day-content,
+  .info-content {
+    animation: none;
+  }
+  
+  .animate-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Navigation */
 .nav {
   position: fixed;

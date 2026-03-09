@@ -5,13 +5,13 @@ const CACHE_NAME = `tokyo-trip-${CACHE_VERSION}`;
 const FONT_CACHE = 'tokyo-trip-fonts-v1';
 
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // Install event - cache assets
@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => {
             if (request.mode === 'navigate') {
-              return caches.match('/index.html');
+              return caches.match('./index.html');
             }
             return cachedResponse;
           });
