@@ -751,10 +751,7 @@ function renderWeatherForecast(forecast, city, isCached = false) {
   
   if (!grid) return;
   
-  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-  
   grid.innerHTML = forecast.map(day => {
-    const weekday = weekdays[day.date.getDay()];
     const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
     const weather = getWeatherIcon(day.weatherCode);
     const hasRain = day.precipitation > 0;
@@ -762,7 +759,6 @@ function renderWeatherForecast(forecast, city, isCached = false) {
     return `
       <div class="weather-day-card ${hasRain ? 'has-rain' : ''}">
         <div class="weather-day-date">${dateStr}</div>
-        <div class="weather-day-weekday">(${weekday})</div>
         <div class="weather-day-icon" title="${weather.desc}">${weather.icon}</div>
         <div class="weather-day-temps">
           <span class="temp-high">${day.tempMax}°</span>
