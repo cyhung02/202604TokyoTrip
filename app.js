@@ -1,5 +1,16 @@
 // Tokyo Trip PWA - Application Logic
 
+const APP_VERSION = '1.1.0';
+
+// ========================================
+// Trip Dates Configuration
+// ========================================
+
+const TRIP_START_DATE = new Date('2026-03-31');
+const TRIP_DATES = [
+  '3/31', '4/1', '4/2', '4/3', '4/4', '4/5', '4/6', '4/7'
+];
+
 // ========================================
 // Data
 // ========================================
@@ -319,24 +330,21 @@ const practicalInfo = {
   weather: {
     title: '天氣與服裝',
     content: `
-      <div class="weather-cards">
-        <div class="weather-card">
-          <div class="weather-icon">🗼</div>
-          <div class="weather-location">東京</div>
-          <div class="weather-temp">12–18°C</div>
-          <div class="weather-note">Day 1-4, 6</div>
+      <div class="weather-forecast-section" id="weather-forecast">
+        <div class="weather-forecast-header">
+          <h4 class="info-card-title">未來 7 天天氣預報</h4>
+          <div class="weather-update-info" id="weather-update-info"></div>
         </div>
-        <div class="weather-card">
-          <div class="weather-icon">♨️</div>
-          <div class="weather-location">箱根</div>
-          <div class="weather-temp">8–15°C</div>
-          <div class="weather-note">Day 5</div>
+        <div class="weather-forecast-grid" id="weather-forecast-grid">
+          <div class="weather-loading">
+            <span class="loading-spinner"></span>
+            <span>載入天氣資料中...</span>
+          </div>
         </div>
-        <div class="weather-card">
-          <div class="weather-icon">🗻</div>
-          <div class="weather-location">河口湖</div>
-          <div class="weather-temp">5–15°C</div>
-          <div class="weather-note">Day 7</div>
+        <div class="weather-location-tabs" id="weather-location-tabs">
+          <button class="weather-loc-tab active" data-city="tokyo">東京</button>
+          <button class="weather-loc-tab" data-city="hakone">箱根</button>
+          <button class="weather-loc-tab" data-city="kawaguchiko">河口湖</button>
         </div>
       </div>
       <div class="weather-tip">
@@ -401,6 +409,15 @@ const practicalInfo = {
           <li class="checklist-item" data-item="mask"><span class="checklist-checkbox"></span>口罩、酒精乾洗手</li>
           <li class="checklist-item" data-item="toiletries"><span class="checklist-checkbox"></span>盥洗用具與基本保養品</li>
         </ul>
+      </div>
+      <div class="info-card">
+        <h4 class="info-card-title">自訂項目</h4>
+        <ul class="checklist" data-category="custom" id="custom-checklist">
+        </ul>
+        <div class="add-item-form" id="add-item-form">
+          <input type="text" id="new-item-input" class="add-item-input" placeholder="輸入新項目..." maxlength="50">
+          <button type="button" id="add-item-btn" class="add-item-btn">+ 新增</button>
+        </div>
       </div>
     `
   },
@@ -489,23 +506,70 @@ const practicalInfo = {
     content: `
       <div class="emergency-card">
         <div class="emergency-title">日本警察</div>
-        <div class="emergency-number">110</div>
+        <a href="tel:110" class="emergency-number emergency-link">110</a>
         <div class="emergency-desc">報案、交通事故</div>
       </div>
       <div class="emergency-card">
         <div class="emergency-title">日本消防與救護</div>
-        <div class="emergency-number">119</div>
+        <a href="tel:119" class="emergency-number emergency-link">119</a>
         <div class="emergency-desc">火災、急救、救護車</div>
       </div>
       <div class="emergency-card">
         <div class="emergency-title">駐日本台北經濟文化代表處</div>
-        <div class="emergency-number">+81-3-3280-7811</div>
+        <a href="tel:+81-3-3280-7811" class="emergency-number emergency-link">+81-3-3280-7811</a>
         <div class="emergency-desc">24 小時急難救助</div>
       </div>
       <div class="emergency-card" style="background: linear-gradient(135deg, #d69e2e 0%, #ecc94b 100%);">
         <div class="emergency-title">外交部旅外國人急難救助專線</div>
-        <div class="emergency-number">+886-800-085-095</div>
+        <a href="tel:+886-800-085-095" class="emergency-number emergency-link">+886-800-085-095</a>
         <div class="emergency-desc">海外急難救助</div>
+      </div>
+    `
+  },
+  sakura: {
+    title: '櫻花前線',
+    content: `
+      <div class="info-card sakura-info-card">
+        <h4 class="info-card-title">🌸 2026 櫻花開花預測</h4>
+        <p class="sakura-intro">3月底至4月初是東京與富士山周邊的櫻花盛開時期。以下為即時查詢櫻花前線的推薦網站：</p>
+        <div class="sakura-links">
+          <a href="https://tenki.jp/sakura/" target="_blank" rel="noopener noreferrer" class="sakura-link">
+            <span class="sakura-link-icon">🌸</span>
+            <span class="sakura-link-text">
+              <span class="sakura-link-name">Tenki.jp 櫻花前線</span>
+              <span class="sakura-link-desc">日本氣象協會提供的開花預測與滿開情報</span>
+            </span>
+            <span class="sakura-link-arrow">→</span>
+          </a>
+          <a href="https://weathernews.jp/s/sakura/" target="_blank" rel="noopener noreferrer" class="sakura-link">
+            <span class="sakura-link-icon">🌸</span>
+            <span class="sakura-link-text">
+              <span class="sakura-link-name">Weathernews 櫻花情報</span>
+              <span class="sakura-link-desc">即時更新各地開花狀態與最佳賞櫻時機</span>
+            </span>
+            <span class="sakura-link-arrow">→</span>
+          </a>
+          <a href="https://www.jma.go.jp/bosai/map.html" target="_blank" rel="noopener noreferrer" class="sakura-link">
+            <span class="sakura-link-icon">🗾</span>
+            <span class="sakura-link-text">
+              <span class="sakura-link-name">日本氣象廳</span>
+              <span class="sakura-link-desc">官方氣象資料與生物季節觀測情報</span>
+            </span>
+            <span class="sakura-link-arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="info-card">
+        <h4 class="info-card-title">如何查詢開花狀況</h4>
+        <ul class="info-list">
+          <li>出發前一週：確認預計造訪地點的開花預測日期</li>
+          <li>出發前幾天：查看「開花」或「滿開」狀態</li>
+          <li>抵達日本後：查詢當地即時開花情報與推薦賞櫻地點</li>
+        </ul>
+      </div>
+      <div class="weather-tip">
+        <span class="weather-tip-icon">💡</span>
+        <span>2026年預測：東京約 3/24 開花、4/1 滿開；河口湖約 4/5-4/10 滿開</span>
       </div>
     `
   }
@@ -551,6 +615,16 @@ let currentDay = 1;
 let currentInfo = 'weather';
 let deferredPrompt = null;
 let checkedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
+let customItems = JSON.parse(localStorage.getItem('customItems') || '[]');
+let weatherCache = JSON.parse(localStorage.getItem('weatherCache') || '{}');
+let currentWeatherCity = 'tokyo';
+
+// Weather API configuration
+const WEATHER_LOCATIONS = {
+  tokyo: { lat: 35.6762, lon: 139.6503, name: '東京', icon: '🗼' },
+  hakone: { lat: 35.2324, lon: 139.1069, name: '箱根', icon: '♨️' },
+  kawaguchiko: { lat: 35.5016, lon: 138.7660, name: '河口湖', icon: '🗻' }
+};
 
 // ========================================
 // Functions
@@ -560,6 +634,254 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ========================================
+// Weather Functions
+// ========================================
+
+const WEATHER_ICONS = {
+  '01d': '☀️', '01n': '🌙',
+  '02d': '⛅', '02n': '☁️',
+  '03d': '☁️', '03n': '☁️',
+  '04d': '☁️', '04n': '☁️',
+  '09d': '🌧️', '09n': '🌧️',
+  '10d': '🌦️', '10n': '🌧️',
+  '11d': '⛈️', '11n': '⛈️',
+  '13d': '❄️', '13n': '❄️',
+  '50d': '🌫️', '50n': '🌫️'
+};
+
+async function fetchWeatherData(city) {
+  const location = WEATHER_LOCATIONS[city];
+  const apiKey = localStorage.getItem('openweathermap_api_key');
+  
+  if (!apiKey) {
+    return renderWeatherFallback(city);
+  }
+  
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=ja`
+    );
+    
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+    
+    const data = await response.json();
+    const processed = processWeatherData(data);
+    
+    weatherCache[city] = {
+      data: processed,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
+    
+    renderWeatherForecast(processed, city);
+  } catch (error) {
+    console.error('Weather fetch error:', error);
+    if (weatherCache[city]) {
+      renderWeatherForecast(weatherCache[city].data, city, true);
+    } else {
+      renderWeatherFallback(city);
+    }
+  }
+}
+
+function processWeatherData(data) {
+  const dailyMap = new Map();
+  
+  data.list.forEach(item => {
+    const date = new Date(item.dt * 1000).toLocaleDateString('ja-JP');
+    if (!dailyMap.has(date)) {
+      dailyMap.set(date, {
+        date: new Date(item.dt * 1000),
+        temps: [],
+        icons: [],
+        descriptions: []
+      });
+    }
+    const day = dailyMap.get(date);
+    day.temps.push(item.main.temp);
+    day.icons.push(item.weather[0].icon);
+    day.descriptions.push(item.weather[0].description);
+  });
+  
+  return Array.from(dailyMap.values()).slice(0, 7).map(day => ({
+    date: day.date,
+    tempMin: Math.round(Math.min(...day.temps)),
+    tempMax: Math.round(Math.max(...day.temps)),
+    icon: day.icons[Math.floor(day.icons.length / 2)],
+    description: day.descriptions[Math.floor(day.descriptions.length / 2)]
+  }));
+}
+
+function renderWeatherForecast(forecast, city, isCached = false) {
+  const grid = document.getElementById('weather-forecast-grid');
+  const updateInfo = document.getElementById('weather-update-info');
+  const location = WEATHER_LOCATIONS[city];
+  
+  if (!grid) return;
+  
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  
+  grid.innerHTML = forecast.map(day => {
+    const weekday = weekdays[day.date.getDay()];
+    const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
+    const icon = WEATHER_ICONS[day.icon] || '🌤️';
+    
+    return `
+      <div class="weather-day-card">
+        <div class="weather-day-date">${dateStr}</div>
+        <div class="weather-day-weekday">(${weekday})</div>
+        <div class="weather-day-icon">${icon}</div>
+        <div class="weather-day-temps">
+          <span class="temp-high">${day.tempMax}°</span>
+          <span class="temp-low">${day.tempMin}°</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  if (updateInfo) {
+    const cacheTime = weatherCache[city]?.timestamp;
+    const timeStr = cacheTime ? new Date(cacheTime).toLocaleString('zh-TW') : '';
+    updateInfo.innerHTML = isCached 
+      ? `<span class="cached-label">離線快取</span> ${timeStr}`
+      : `更新時間：${timeStr}`;
+  }
+}
+
+function renderWeatherFallback(city) {
+  const grid = document.getElementById('weather-forecast-grid');
+  const location = WEATHER_LOCATIONS[city];
+  
+  if (!grid) return;
+  
+  const fallbackTemps = {
+    tokyo: { min: 12, max: 18 },
+    hakone: { min: 8, max: 15 },
+    kawaguchiko: { min: 5, max: 15 }
+  };
+  
+  const temps = fallbackTemps[city];
+  
+  grid.innerHTML = `
+    <div class="weather-fallback">
+      <div class="weather-fallback-icon">${location.icon}</div>
+      <div class="weather-fallback-location">${location.name}</div>
+      <div class="weather-fallback-temp">${temps.min}–${temps.max}°C</div>
+      <div class="weather-fallback-note">預估溫度範圍</div>
+      <div class="weather-api-setup">
+        <p>如需即時天氣預報，請設定 OpenWeatherMap API Key：</p>
+        <input type="text" id="api-key-input" class="api-key-input" placeholder="輸入 API Key">
+        <button id="save-api-key" class="save-api-key-btn">儲存</button>
+        <a href="https://openweathermap.org/api" target="_blank" rel="noopener" class="api-link">取得免費 API Key</a>
+      </div>
+    </div>
+  `;
+  
+  setTimeout(() => {
+    const saveBtn = document.getElementById('save-api-key');
+    const input = document.getElementById('api-key-input');
+    if (saveBtn && input) {
+      saveBtn.addEventListener('click', () => {
+        const key = input.value.trim();
+        if (key) {
+          localStorage.setItem('openweathermap_api_key', key);
+          showToast('API Key 已儲存');
+          fetchWeatherData(city);
+        }
+      });
+    }
+  }, 100);
+}
+
+// ========================================
+// Custom Checklist Functions
+// ========================================
+
+function renderCustomItems() {
+  const container = document.getElementById('custom-checklist');
+  if (!container) return;
+  
+  container.innerHTML = customItems.map((item, index) => `
+    <li class="checklist-item ${checkedItems['custom_' + index] ? 'checked' : ''}" data-item="custom_${index}">
+      <span class="checklist-checkbox"></span>
+      <span class="custom-item-text">${item}</span>
+      <button class="delete-item-btn" data-index="${index}" aria-label="刪除項目">×</button>
+    </li>
+  `).join('');
+}
+
+function addCustomItem(text) {
+  if (!text.trim()) return;
+  customItems.push(text.trim());
+  localStorage.setItem('customItems', JSON.stringify(customItems));
+  renderCustomItems();
+  showToast('已新增項目');
+}
+
+function deleteCustomItem(index) {
+  customItems.splice(index, 1);
+  localStorage.setItem('customItems', JSON.stringify(customItems));
+  delete checkedItems['custom_' + index];
+  localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+  renderCustomItems();
+  showToast('已刪除項目');
+}
+
+// ========================================
+// Speech Synthesis Functions
+// ========================================
+
+function speakJapanese(text) {
+  if (!('speechSynthesis' in window)) {
+    showToast('您的瀏覽器不支援語音功能');
+    return;
+  }
+  
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ja-JP';
+  utterance.rate = 0.8;
+  
+  const voices = window.speechSynthesis.getVoices();
+  const japaneseVoice = voices.find(v => v.lang.startsWith('ja'));
+  if (japaneseVoice) {
+    utterance.voice = japaneseVoice;
+  }
+  
+  window.speechSynthesis.speak(utterance);
+}
+
+// ========================================
+// Auto Day Selection
+// ========================================
+
+function getTodayDay() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const tripStart = new Date(TRIP_START_DATE);
+  tripStart.setHours(0, 0, 0, 0);
+  
+  const diffTime = today.getTime() - tripStart.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays >= 0 && diffDays < 8) {
+    return diffDays + 1;
+  }
+  return 1;
+}
+
+function scrollToHighlights() {
+  const highlights = document.querySelector('.highlights');
+  if (highlights) {
+    highlights.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function renderHotels() {
@@ -689,13 +1011,65 @@ function renderInfoContent(infoKey) {
         item.classList.add('checked');
       }
     });
+    
+    renderCustomItems();
+    
+    const addBtn = document.getElementById('add-item-btn');
+    const input = document.getElementById('new-item-input');
+    if (addBtn && input) {
+      addBtn.addEventListener('click', () => {
+        addCustomItem(input.value);
+        input.value = '';
+      });
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addCustomItem(input.value);
+          input.value = '';
+        }
+      });
+    }
+    
+    const customChecklist = document.getElementById('custom-checklist');
+    if (customChecklist) {
+      customChecklist.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-item-btn');
+        if (deleteBtn) {
+          e.stopPropagation();
+          const index = parseInt(deleteBtn.dataset.index);
+          deleteCustomItem(index);
+        }
+      });
+    }
+  }
+  
+  if (infoKey === 'weather') {
+    fetchWeatherData(currentWeatherCity);
+    
+    const locationTabs = document.getElementById('weather-location-tabs');
+    if (locationTabs) {
+      locationTabs.addEventListener('click', (e) => {
+        const tab = e.target.closest('.weather-loc-tab');
+        if (tab) {
+          const city = tab.dataset.city;
+          currentWeatherCity = city;
+          locationTabs.querySelectorAll('.weather-loc-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          fetchWeatherData(city);
+        }
+      });
+    }
   }
 }
 
 function renderPhrases() {
   phraseGrid.innerHTML = phrases.map(phrase => `
     <div class="phrase-card" data-jp="${phrase.jp.replace(/"/g, '&quot;')}">
-      <div class="phrase-jp">${phrase.jp}</div>
+      <div class="phrase-header">
+        <div class="phrase-jp">${phrase.jp}</div>
+        <button class="phrase-speak-btn" data-text="${phrase.jp.replace(/"/g, '&quot;')}" aria-label="播放發音">
+          🔊
+        </button>
+      </div>
       <div class="phrase-romaji">${phrase.romaji}</div>
       <div class="phrase-meaning">${phrase.meaning}</div>
     </div>
@@ -821,6 +1195,14 @@ infoContent.addEventListener('click', (e) => {
 
 // Phrase cards - event delegation
 phraseGrid.addEventListener('click', (e) => {
+  const speakBtn = e.target.closest('.phrase-speak-btn');
+  if (speakBtn) {
+    e.stopPropagation();
+    const text = speakBtn.dataset.text;
+    speakJapanese(text);
+    return;
+  }
+  
   const card = e.target.closest('.phrase-card');
   if (card) {
     handlePhraseCopy(card);
@@ -854,6 +1236,12 @@ installDismiss.addEventListener('click', () => {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Auto-select today's day if within trip dates
+  currentDay = getTodayDay();
+  
+  // Update day tabs to show dates instead of "Day X"
+  updateDayTabsWithDates();
+  
   renderHotels();
   renderDayContent(currentDay);
   renderInfoContent(currentInfo);
@@ -861,6 +1249,18 @@ document.addEventListener('DOMContentLoaded', () => {
   createSakuraPetals();
   setupNavVisibility();
   setupScrollAnimations();
+  setupHeroScroll();
+  
+  // Pre-load speech synthesis voices
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+  }
+  
+  // Update footer version
+  const footerAuthor = document.querySelector('.footer-author');
+  if (footerAuthor) {
+    footerAuthor.innerHTML = `Chung-Yao 編製 <span class="footer-version">v${APP_VERSION}</span>`;
+  }
 
   // Register Service Worker
   if ('serviceWorker' in navigator) {
@@ -869,3 +1269,25 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => console.log('Service Worker registration failed', err));
   }
 });
+
+function updateDayTabsWithDates() {
+  const tabs = dayTabs.querySelectorAll('.day-tab');
+  tabs.forEach((tab, index) => {
+    const day = index + 1;
+    tab.textContent = TRIP_DATES[index];
+    tab.dataset.day = day;
+    if (day === currentDay) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+}
+
+function setupHeroScroll() {
+  const heroScroll = document.querySelector('.hero-scroll');
+  if (heroScroll) {
+    heroScroll.style.cursor = 'pointer';
+    heroScroll.addEventListener('click', scrollToHighlights);
+  }
+}

@@ -234,7 +234,6 @@ body {
 .nav-menu.open li:nth-child(3) { transition-delay: 0.15s; }
 .nav-menu.open li:nth-child(4) { transition-delay: 0.2s; }
 .nav-menu.open li:nth-child(5) { transition-delay: 0.25s; }
-.nav-menu.open li:nth-child(6) { transition-delay: 0.3s; }
 
 .nav-menu a {
   font-family: var(--font-serif);
@@ -1443,6 +1442,390 @@ body {
   border: 0;
 }
 
+/* Emergency Link Styles */
+.emergency-link {
+  color: white;
+  text-decoration: none;
+  display: block;
+  transition: transform var(--transition-fast), text-shadow var(--transition-fast);
+}
+
+.emergency-link:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Weather Forecast Styles */
+.weather-forecast-section {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.weather-forecast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.weather-update-info {
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
+}
+
+.cached-label {
+  background: var(--color-gold-light);
+  color: var(--color-indigo-dark);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
+  margin-right: 4px;
+}
+
+.weather-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-sm);
+}
+
+.weather-day-card {
+  text-align: center;
+  padding: var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-indigo-light) 100%);
+  border-radius: var(--radius-md);
+  color: white;
+  min-width: 60px;
+}
+
+.weather-day-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.weather-day-weekday {
+  font-size: 0.625rem;
+  opacity: 0.8;
+  margin-bottom: var(--spacing-xs);
+}
+
+.weather-day-icon {
+  font-size: 1.25rem;
+  margin: var(--spacing-xs) 0;
+}
+
+.weather-day-temps {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+}
+
+.temp-high {
+  color: var(--color-sakura-light);
+  font-weight: 600;
+}
+
+.temp-low {
+  opacity: 0.7;
+}
+
+.weather-location-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.weather-loc-tab {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+  background: var(--color-washi);
+  border: 1px solid var(--color-washi-dark);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.weather-loc-tab:hover {
+  border-color: var(--color-indigo);
+}
+
+.weather-loc-tab.active {
+  background: var(--color-indigo);
+  border-color: var(--color-indigo);
+  color: white;
+}
+
+.weather-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl);
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-washi-dark);
+  border-top-color: var(--color-indigo);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.weather-fallback {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.weather-fallback-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.weather-fallback-location {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-indigo);
+  margin-bottom: var(--spacing-xs);
+}
+
+.weather-fallback-temp {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-sakura-dark);
+  margin-bottom: var(--spacing-xs);
+}
+
+.weather-fallback-note {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--spacing-lg);
+}
+
+.weather-api-setup {
+  background: var(--color-washi);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: left;
+}
+
+.weather-api-setup p {
+  font-size: 0.8125rem;
+  color: var(--color-ink-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.api-key-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-washi-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.api-key-input:focus {
+  outline: none;
+  border-color: var(--color-indigo);
+}
+
+.save-api-key-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-indigo);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  margin-right: var(--spacing-sm);
+  transition: background var(--transition-fast);
+}
+
+.save-api-key-btn:hover {
+  background: var(--color-indigo-light);
+}
+
+.api-link {
+  font-size: 0.75rem;
+  color: var(--color-indigo);
+}
+
+/* Phrase Card Updates */
+.phrase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.phrase-speak-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.phrase-speak-btn:hover {
+  background: var(--color-sakura-light);
+  transform: scale(1.1);
+}
+
+.phrase-speak-btn:active {
+  transform: scale(0.95);
+}
+
+/* Custom Checklist Item Styles */
+.add-item-form {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px dashed var(--color-washi-dark);
+}
+
+.add-item-input {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-washi-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+.add-item-input:focus {
+  outline: none;
+  border-color: var(--color-indigo);
+}
+
+.add-item-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-sakura);
+  color: var(--color-indigo);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.add-item-btn:hover {
+  background: var(--color-sakura-dark);
+  color: white;
+}
+
+.delete-item-btn {
+  background: none;
+  border: none;
+  color: var(--color-ink-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 var(--spacing-xs);
+  margin-left: auto;
+  transition: color var(--transition-fast);
+}
+
+.delete-item-btn:hover {
+  color: var(--color-sakura-dark);
+}
+
+.custom-item-text {
+  flex: 1;
+}
+
+/* Sakura Info Section */
+.sakura-info-card {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe4e4 100%);
+}
+
+.sakura-intro {
+  font-size: 0.8125rem;
+  color: var(--color-ink-light);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+.sakura-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.sakura-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.sakura-link:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.sakura-link-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.sakura-link-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sakura-link-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-indigo);
+}
+
+.sakura-link-desc {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+}
+
+.sakura-link-arrow {
+  color: var(--color-sakura-dark);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Footer Version */
+.footer-version {
+  display: inline-block;
+  font-size: 0.625rem;
+  opacity: 0.5;
+  margin-left: var(--spacing-xs);
+}
+
 /* Desktop Styles */
 @media (min-width: 768px) {
   .hero-title {
@@ -1460,5 +1843,9 @@ body {
   
   .app-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .weather-forecast-grid {
+    grid-template-columns: repeat(7, 1fr);
   }
 }
