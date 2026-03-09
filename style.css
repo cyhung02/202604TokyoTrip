@@ -592,7 +592,6 @@ body {
 .hotel-timeline {
   position: relative;
   padding-left: 24px;
-  margin-left: 16px;
 }
 
 .hotel-timeline::before {
@@ -600,7 +599,7 @@ body {
   position: absolute;
   top: 34px;
   bottom: 34px;
-  left: -16px;
+  left: 5px;
   width: 2px;
   background: linear-gradient(
     180deg,
@@ -619,7 +618,7 @@ body {
 .hotel-card-wrapper::before {
   content: '';
   position: absolute;
-  left: -29px;
+  left: -19px;
   top: 28px;
   width: 12px;
   height: 12px;
@@ -861,17 +860,15 @@ body {
   justify-content: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs);
-  background: var(--color-sakura-light);
-  color: var(--color-indigo);
-  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-sakura-dark);
   text-decoration: none;
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
 .maps-btn:hover {
-  background: var(--color-sakura);
-  transform: scale(1.05);
+  color: var(--color-indigo);
 }
 
 .maps-btn svg {
@@ -882,9 +879,9 @@ body {
   width: 100%;
   padding: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  border-radius: var(--radius-md);
   font-size: 0.8125rem;
   font-weight: 500;
+  justify-content: flex-start;
 }
 
 .spot-hours {
