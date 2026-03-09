@@ -528,28 +528,30 @@ function showToast(message) {
 
 function renderHotels() {
   hotelTimeline.innerHTML = hotels.map(hotel => `
-    <div class="hotel-card" onclick="this.classList.toggle('expanded')">
-      <div class="hotel-dates">
-        <span>${hotel.checkIn} → ${hotel.checkOut}</span>
-        <span class="hotel-nights">${hotel.nights} 晚</span>
+    <div class="hotel-card-wrapper">
+      <div class="hotel-card" onclick="this.classList.toggle('expanded')">
+        <div class="hotel-dates">
+          <span>${hotel.checkIn} → ${hotel.checkOut}</span>
+          <span class="hotel-nights">${hotel.nights} 晚</span>
+        </div>
+        <div class="hotel-name">${hotel.name}</div>
+        <div class="hotel-location">${hotel.location}</div>
+        <div class="hotel-details">
+          <div class="hotel-detail-item">
+            <span class="hotel-detail-label">入退房</span>
+            <span class="hotel-detail-value">${hotel.times}</span>
+          </div>
+          <div class="hotel-detail-item">
+            <span class="hotel-detail-label">確認碼</span>
+            <span class="hotel-detail-value">${hotel.code}</span>
+          </div>
+          <div class="hotel-detail-item">
+            <span class="hotel-detail-label">特色</span>
+            <span class="hotel-detail-value">${hotel.features}</span>
+          </div>
+        </div>
+        <div class="hotel-expand-hint">點擊查看詳情</div>
       </div>
-      <div class="hotel-name">${hotel.name}</div>
-      <div class="hotel-location">${hotel.location}</div>
-      <div class="hotel-details">
-        <div class="hotel-detail-item">
-          <span class="hotel-detail-label">入退房</span>
-          <span class="hotel-detail-value">${hotel.times}</span>
-        </div>
-        <div class="hotel-detail-item">
-          <span class="hotel-detail-label">確認碼</span>
-          <span class="hotel-detail-value">${hotel.code}</span>
-        </div>
-        <div class="hotel-detail-item">
-          <span class="hotel-detail-label">特色</span>
-          <span class="hotel-detail-value">${hotel.features}</span>
-        </div>
-      </div>
-      <div class="hotel-expand-hint">點擊查看詳情</div>
     </div>
   `).join('');
 }
