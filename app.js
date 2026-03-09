@@ -9,7 +9,7 @@ const hotels = [
     checkIn: '3月31日',
     checkOut: '4月4日',
     nights: 4,
-    name: '東京站八重洲中央口超級精選飯店',
+    name: 'スーパーホテル Premier 東京駅八重洲中央口',
     location: '東京都中央區八重洲',
     times: '入住 15:00 / 退房 11:00',
     code: '8RAAHX2M',
@@ -19,7 +19,7 @@ const hotels = [
     checkIn: '4月4日',
     checkOut: '4月5日',
     nights: 1,
-    name: 'Rakuten STAY FUJIMI TERRACE 箱根蘆之湖',
+    name: 'Rakuten STAY FUJIMI TERRACE 箱根芦ノ湖',
     location: '神奈川縣箱根町蘆之湖周邊',
     times: '入住 15:00 / 退房 10:00',
     code: '1616327684075494',
@@ -29,11 +29,11 @@ const hotels = [
     checkIn: '4月5日',
     checkOut: '4月6日',
     nights: 1,
-    name: 'JR 九州 Blossom 飯店新宿（代々木）',
-    location: '東京都澀谷區代々木',
+    name: 'JR 九州ホテル ブラッサム新宿',
+    location: '東京都新宿區新宿',
     times: '入住 15:00 / 退房 11:00',
     code: '1616327693641839',
-    features: '鄰近代代木站，步行可達新宿與明治神宮，交通機能佳'
+    features: '鄰近新宿站南口，交通便利，步行可達新宿御苑與明治神宮'
   },
   {
     checkIn: '4月6日',
@@ -64,7 +64,7 @@ const itinerary = [
       { place: '東京站', name: 'GRANSTA TOKYO 地下街或八重洲地下街，日式便當與甜點選擇多樣' }
     ],
     transport: [],
-    accommodation: '東京站八重洲中央口超級精選飯店'
+    accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
   },
   {
     day: 2,
@@ -94,7 +94,7 @@ const itinerary = [
       { place: '中目黑', name: '車站周邊居酒屋與特色餐廳' }
     ],
     transport: [],
-    accommodation: '東京站八重洲中央口超級精選飯店'
+    accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
   },
   {
     day: 3,
@@ -128,7 +128,7 @@ const itinerary = [
       { place: '阿美橫丁', name: '「大統領」燒肉與串烤店' }
     ],
     transport: [],
-    accommodation: '東京站八重洲中央口超級精選飯店'
+    accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
   },
   {
     day: 4,
@@ -180,7 +180,7 @@ const itinerary = [
     transport: [
       { name: '江之電一日券', desc: '約 800 日圓，當日可無限次搭乘江之電全線，適合多站途中下車遊覽' }
     ],
-    accommodation: '東京站八重洲中央口超級精選飯店'
+    accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
   },
   {
     day: 5,
@@ -211,7 +211,7 @@ const itinerary = [
     transport: [
       { name: '箱根周遊券', desc: '2 日券，新宿出發版約 6,100–6,500 日圓。包含箱根登山電車、登山纜車、空中纜車、海盜船與多條巴士路線無限次搭乘' }
     ],
-    accommodation: 'Rakuten STAY FUJIMI TERRACE 箱根蘆之湖'
+    accommodation: 'Rakuten STAY FUJIMI TERRACE 箱根芦ノ湖'
   },
   {
     day: 6,
@@ -245,7 +245,7 @@ const itinerary = [
       { place: '新宿', name: '「思い出橫丁」串燒與居酒屋、新宿拉麵街' }
     ],
     transport: [],
-    accommodation: 'JR 九州 Blossom 飯店新宿（代々木）'
+    accommodation: 'JR 九州ホテル ブラッサム新宿'
   },
   {
     day: 7,

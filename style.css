@@ -717,7 +717,7 @@ body {
 /* Day Tabs */
 .day-tabs-wrapper {
   position: sticky;
-  top: 0;
+  top: 48px;
   z-index: 100;
   background: var(--color-washi);
   margin: 0 calc(var(--spacing-md) * -1);
