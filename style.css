@@ -143,6 +143,8 @@ body {
   border-bottom: 1px solid rgba(26, 54, 93, 0.1);
   transform: translateY(-100%);
   transition: transform var(--transition-base);
+  /* Fix: push nav content below iPhone status bar / notch in PWA mode */
+  padding-top: env(safe-area-inset-top);
 }
 
 .nav.visible {
@@ -738,7 +740,8 @@ body {
 /* Day Tabs */
 .day-tabs-wrapper {
   position: sticky;
-  top: 48px;
+  /* Fix: account for safe-area-inset-top so tabs don't hide under the nav bar on iPhone PWA */
+  top: calc(48px + env(safe-area-inset-top));
   z-index: 100;
   background: var(--color-washi);
   margin: 0 calc(var(--spacing-md) * -1);
