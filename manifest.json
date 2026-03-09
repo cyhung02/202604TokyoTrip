@@ -1,0 +1,26 @@
+{
+  "name": "東京・箱根・富士山 2026 春季旅行",
+  "short_name": "東京旅遊手冊",
+  "description": "2026年3月31日至4月7日 東京賞櫻、箱根溫泉、富士山河口湖 8天7夜行程手冊",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f5",
+  "theme_color": "#1a365d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "lang": "zh-TW",
+  "categories": ["travel", "lifestyle"]
+}

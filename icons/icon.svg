@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a365d"/>
+      <stop offset="100%" style="stop-color:#2c5282"/>
+    </linearGradient>
+    <linearGradient id="fuji" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#4a5568"/>
+      <stop offset="70%" style="stop-color:#718096"/>
+      <stop offset="85%" style="stop-color:#e2e8f0"/>
+      <stop offset="100%" style="stop-color:#ffffff"/>
+    </linearGradient>
+    <linearGradient id="sakura" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdd5d5"/>
+      <stop offset="100%" style="stop-color:#f8b4b4"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  
+  <!-- Mt. Fuji -->
+  <path d="M64 400 L256 180 L448 400 Z" fill="url(#fuji)"/>
+  <path d="M180 260 L256 180 L332 260 Q256 240 180 260" fill="#ffffff"/>
+  
+  <!-- Cherry Blossom Petals -->
+  <g transform="translate(380, 120)">
+    <ellipse cx="0" cy="-35" rx="18" ry="28" fill="url(#sakura)" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-35" rx="18" ry="28" fill="url(#sakura)" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-35" rx="18" ry="28" fill="url(#sakura)" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-35" rx="18" ry="28" fill="url(#sakura)" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-35" rx="18" ry="28" fill="url(#sakura)" transform="rotate(288)"/>
+    <circle cx="0" cy="0" r="12" fill="#d69e2e"/>
+  </g>
+  
+  <!-- Small petals -->
+  <g transform="translate(120, 160)">
+    <ellipse cx="0" cy="-20" rx="10" ry="16" fill="url(#sakura)" transform="rotate(0)" opacity="0.9"/>
+    <ellipse cx="0" cy="-20" rx="10" ry="16" fill="url(#sakura)" transform="rotate(72)" opacity="0.9"/>
+    <ellipse cx="0" cy="-20" rx="10" ry="16" fill="url(#sakura)" transform="rotate(144)" opacity="0.9"/>
+    <ellipse cx="0" cy="-20" rx="10" ry="16" fill="url(#sakura)" transform="rotate(216)" opacity="0.9"/>
+    <ellipse cx="0" cy="-20" rx="10" ry="16" fill="url(#sakura)" transform="rotate(288)" opacity="0.9"/>
+    <circle cx="0" cy="0" r="7" fill="#ecc94b"/>
+  </g>
+  
+  <!-- Falling petals -->
+  <ellipse cx="90" cy="280" rx="8" ry="12" fill="#f8b4b4" opacity="0.7" transform="rotate(30, 90, 280)"/>
+  <ellipse cx="420" cy="220" rx="6" ry="10" fill="#fdd5d5" opacity="0.6" transform="rotate(-20, 420, 220)"/>
+  <ellipse cx="350" cy="320" rx="7" ry="11" fill="#f8b4b4" opacity="0.5" transform="rotate(45, 350, 320)"/>
+</svg>

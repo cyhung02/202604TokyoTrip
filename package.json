@@ -1,0 +1,16 @@
+{
+  "name": "tokyo-trip-2026",
+  "version": "1.0.0",
+  "description": "東京・箱根・富士山 2026 春季旅行手冊 PWA",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve -l 3000",
+    "generate-icons": "node generate-icons.mjs"
+  },
+  "keywords": ["tokyo", "travel", "pwa", "japan", "sakura"],
+  "author": "Chung-Yao",
+  "license": "MIT",
+  "devDependencies": {
+    "canvas": "^3.2.1"
+  }
+}
