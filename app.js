@@ -314,23 +314,54 @@ const practicalInfo = {
   weather: {
     title: '天氣與服裝',
     content: `
-      <div class="info-card">
-        <h4 class="info-card-title">4月上旬氣溫</h4>
-        <ul class="info-list">
-          <li>東京平均氣溫約 12–18°C</li>
-          <li>箱根約 8–15°C</li>
-          <li>河口湖約 5–15°C</li>
-          <li>日夜溫差較大，清晨與夜間偏涼</li>
-        </ul>
+      <div class="weather-cards">
+        <div class="weather-card">
+          <div class="weather-icon">🗼</div>
+          <div class="weather-location">東京</div>
+          <div class="weather-temp">12–18°C</div>
+          <div class="weather-note">Day 1-4, 6</div>
+        </div>
+        <div class="weather-card">
+          <div class="weather-icon">♨️</div>
+          <div class="weather-location">箱根</div>
+          <div class="weather-temp">8–15°C</div>
+          <div class="weather-note">Day 5</div>
+        </div>
+        <div class="weather-card">
+          <div class="weather-icon">🗻</div>
+          <div class="weather-location">河口湖</div>
+          <div class="weather-temp">5–15°C</div>
+          <div class="weather-note">Day 7</div>
+        </div>
+      </div>
+      <div class="weather-tip">
+        <span class="weather-tip-icon">💡</span>
+        <span>日夜溫差較大，清晨與夜間偏涼，白天溫度舒適</span>
       </div>
       <div class="info-card">
         <h4 class="info-card-title">建議服裝</h4>
-        <ul class="info-list">
-          <li>上身：發熱衣＋薄毛衣＋輕薄羽絨外套或防風外套</li>
-          <li>下身：牛仔褲或長褲，怕冷可搭配薄發熱褲</li>
-          <li>鞋子：舒適好走的運動鞋或健走鞋</li>
-          <li>配件：圍巾、折疊傘、薄手套（視個人怕冷程度）</li>
-        </ul>
+        <div class="clothing-grid">
+          <div class="clothing-item">
+            <span class="clothing-icon">👕</span>
+            <span class="clothing-label">上身</span>
+            <span class="clothing-desc">發熱衣＋薄毛衣＋輕薄羽絨外套</span>
+          </div>
+          <div class="clothing-item">
+            <span class="clothing-icon">👖</span>
+            <span class="clothing-label">下身</span>
+            <span class="clothing-desc">牛仔褲或長褲，可搭配薄發熱褲</span>
+          </div>
+          <div class="clothing-item">
+            <span class="clothing-icon">👟</span>
+            <span class="clothing-label">鞋子</span>
+            <span class="clothing-desc">舒適好走的運動鞋或健走鞋</span>
+          </div>
+          <div class="clothing-item">
+            <span class="clothing-icon">🧣</span>
+            <span class="clothing-label">配件</span>
+            <span class="clothing-desc">圍巾、折疊傘、薄手套</span>
+          </div>
+        </div>
       </div>
     `
   },
@@ -549,6 +580,13 @@ function renderHotels() {
             <span class="hotel-detail-label">特色</span>
             <span class="hotel-detail-value">${hotel.features}</span>
           </div>
+          <a href="https://www.google.com.tw/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener" class="maps-btn maps-btn-full" onclick="event.stopPropagation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>在 Google Maps 開啟</span>
+          </a>
         </div>
         <div class="hotel-expand-hint">點擊查看詳情</div>
       </div>
@@ -569,7 +607,15 @@ function renderDayContent(day) {
       <h3 class="spot-section-title">景點資訊</h3>
       ${data.spots.map(spot => `
         <div class="spot-card">
-          <div class="spot-name">${spot.name}</div>
+          <div class="spot-header">
+            <div class="spot-name">${spot.name}</div>
+            <a href="https://www.google.com.tw/maps/search/${encodeURIComponent(spot.name)}" target="_blank" rel="noopener" class="maps-btn" title="在 Google Maps 開啟">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </a>
+          </div>
           ${spot.hours ? `<div class="spot-hours">${spot.hours}</div>` : ''}
           <div class="spot-desc">${spot.desc}</div>
         </div>
