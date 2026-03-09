@@ -1,6 +1,6 @@
 // Tokyo Trip PWA - Application Logic
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.5.1';
 
 // ========================================
 // Trip Dates Configuration
@@ -346,7 +346,7 @@ const practicalInfo = {
           <button class="weather-loc-tab" data-city="kawaguchiko">🗻 河口湖</button>
         </div>
         <div class="weather-data-source">
-          資料來源：日本氣象廳 (JMA) via Open-Meteo
+          資料來源：日本氣象廳 (JMA)
         </div>
       </div>
       <div class="weather-tip">
