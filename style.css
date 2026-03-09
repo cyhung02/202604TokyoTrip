@@ -591,15 +591,16 @@ body {
 /* Hotel Timeline */
 .hotel-timeline {
   position: relative;
-  padding-left: var(--spacing-lg);
+  padding-left: 28px;
+  margin-left: 8px;
 }
 
 .hotel-timeline::before {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  left: 4px;
   width: 2px;
   background: linear-gradient(
     180deg,
@@ -629,10 +630,10 @@ body {
 .hotel-card::before {
   content: '';
   position: absolute;
-  left: calc(var(--spacing-lg) * -1 - 4px);
-  top: var(--spacing-lg);
-  width: 10px;
-  height: 10px;
+  left: -24px;
+  top: 24px;
+  width: 12px;
+  height: 12px;
   background: var(--color-indigo);
   border: 2px solid white;
   border-radius: 50%;
