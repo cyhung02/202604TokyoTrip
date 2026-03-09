@@ -599,7 +599,7 @@ body {
   position: absolute;
   top: 34px;
   bottom: 34px;
-  left: 5px;
+  left: 0;
   width: 2px;
   background: linear-gradient(
     180deg,
@@ -618,7 +618,7 @@ body {
 .hotel-card-wrapper::before {
   content: '';
   position: absolute;
-  left: -19px;
+  left: -29px;
   top: 28px;
   width: 12px;
   height: 12px;
