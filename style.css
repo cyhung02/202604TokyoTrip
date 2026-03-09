@@ -761,7 +761,7 @@ body {
 
 .day-tab {
   flex: 1;
-  min-width: 0;
+  min-width: 44px;
   padding: var(--spacing-sm) var(--spacing-xs);
   font-family: var(--font-serif);
   font-size: 0.875rem;
@@ -1476,27 +1476,12 @@ body {
   gap: var(--spacing-sm);
 }
 
-.weather-update-info {
-  font-size: 0.6875rem;
-  color: var(--color-ink-muted);
-}
-
-.cached-label {
-  background: var(--color-gold-light);
-  color: var(--color-indigo-dark);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  font-size: 0.625rem;
-  margin-right: 4px;
-}
 
 .weather-forecast-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--spacing-xs);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
-  overflow-x: auto;
-  padding-bottom: var(--spacing-sm);
 }
 
 .weather-day-card {
@@ -1645,16 +1630,6 @@ body {
   font-size: 0.5625rem;
   opacity: 0.9;
   margin-top: 2px;
-}
-
-.weather-source {
-  background: var(--color-indigo);
-  color: white;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  font-size: 0.5625rem;
-  margin-right: 4px;
-  font-weight: 600;
 }
 
 .weather-data-source {
@@ -1844,7 +1819,4 @@ body {
     grid-template-columns: repeat(4, 1fr);
   }
   
-  .weather-forecast-grid {
-    grid-template-columns: repeat(7, 1fr);
-  }
 }

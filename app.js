@@ -332,8 +332,7 @@ const practicalInfo = {
     content: `
       <div class="weather-forecast-section" id="weather-forecast">
         <div class="weather-forecast-header">
-          <h4 class="info-card-title">未來 7 天天氣預報</h4>
-          <div class="weather-update-info" id="weather-update-info"></div>
+          <h4 class="info-card-title">未來 3 天天氣預報</h4>
         </div>
         <div class="weather-forecast-grid" id="weather-forecast-grid">
           <div class="weather-loading">
@@ -695,7 +694,7 @@ async function fetchWeatherData(city) {
   
   try {
     // Build API URL with Open-Meteo JMA
-    let url = `https://api.open-meteo.com/v1/jma?latitude=${location.lat}&longitude=${location.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours&timezone=Asia/Tokyo&forecast_days=7`;
+    let url = `https://api.open-meteo.com/v1/jma?latitude=${location.lat}&longitude=${location.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours&timezone=Asia/Tokyo&forecast_days=3`;
     
     // Add elevation for mountain areas (more accurate temperature)
     if (location.elevation) {
@@ -748,7 +747,6 @@ function processJMAWeatherData(data) {
 
 function renderWeatherForecast(forecast, city, isCached = false) {
   const grid = document.getElementById('weather-forecast-grid');
-  const updateInfo = document.getElementById('weather-update-info');
   const location = WEATHER_LOCATIONS[city];
   
   if (!grid) return;
@@ -774,15 +772,6 @@ function renderWeatherForecast(forecast, city, isCached = false) {
       </div>
     `;
   }).join('');
-  
-  if (updateInfo) {
-    const cacheTime = weatherCache[city]?.timestamp;
-    const timeStr = cacheTime ? new Date(cacheTime).toLocaleString('zh-TW') : '';
-    const sourceLabel = '<span class="weather-source">JMA</span>';
-    updateInfo.innerHTML = isCached 
-      ? `${sourceLabel}<span class="cached-label">離線快取</span> ${timeStr}`
-      : `${sourceLabel}更新：${timeStr}`;
-  }
 }
 
 function renderWeatherFallback(city) {
