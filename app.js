@@ -779,6 +779,15 @@ dayTabs.addEventListener('click', (e) => {
       dayTabs.querySelectorAll('.day-tab').forEach(tab => tab.classList.remove('active'));
       e.target.classList.add('active');
       renderDayContent(day);
+      
+      // Scroll to day content with offset for sticky header
+      setTimeout(() => {
+        const dayHeader = document.querySelector('.day-header');
+        if (dayHeader) {
+          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - 120;
+          window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+        }
+      }, 50);
     }
   }
 });
