@@ -1,6 +1,6 @@
 // Tokyo Trip PWA - Application Logic
 
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.5.0';
 
 // ========================================
 // Trip Dates Configuration
