@@ -1,6 +1,6 @@
 // Tokyo Trip PWA - Application Logic
 
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.4.1';
 
 // ========================================
 // Trip Dates Configuration
@@ -760,11 +760,13 @@ function renderWeatherForecast(forecast, city, isCached = false) {
       <div class="weather-day-card ${hasRain ? 'has-rain' : ''}">
         <div class="weather-day-date">${dateStr}</div>
         <div class="weather-day-icon" title="${weather.desc}">${weather.icon}</div>
-        <div class="weather-day-temps">
-          <span class="temp-high">${day.tempMax}°</span>
-          <span class="temp-low">${day.tempMin}°</span>
+        <div class="weather-day-info">
+          <div class="weather-day-temps">
+            <span class="temp-high">${day.tempMax}°</span>
+            <span class="temp-low">${day.tempMin}°</span>
+          </div>
+          ${hasRain ? `<div class="weather-day-rain">${day.precipitation.toFixed(0)}mm</div>` : ''}
         </div>
-        ${hasRain ? `<div class="weather-day-rain">☔ ${day.precipitation.toFixed(1)}mm</div>` : ''}
       </div>
     `;
   }).join('');
