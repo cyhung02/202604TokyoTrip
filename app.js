@@ -332,6 +332,7 @@ const practicalInfo = {
       <div class="weather-forecast-section" id="weather-forecast">
         <div class="weather-forecast-header">
           <h4 class="info-card-title">未來 3 天天氣預報</h4>
+          <p class="weather-forecast-hint">點擊日期查看穿衣建議</p>
         </div>
         <div class="weather-forecast-grid" id="weather-forecast-grid">
           <div class="weather-loading">
@@ -348,34 +349,15 @@ const practicalInfo = {
           資料來源：日本氣象廳 (JMA)
         </div>
       </div>
+      <div class="outfit-advice-section" id="outfit-advice-section">
+        <div class="outfit-advice-placeholder">
+          <span class="outfit-placeholder-icon">👆</span>
+          <span class="outfit-placeholder-text">點選上方日期，取得 AI 穿搭建議</span>
+        </div>
+      </div>
       <div class="weather-tip">
         <span class="weather-tip-icon">💡</span>
         <span>日夜溫差較大，清晨與夜間偏涼，白天溫度舒適</span>
-      </div>
-      <div class="info-card">
-        <h4 class="info-card-title">建議服裝</h4>
-        <div class="clothing-grid">
-          <div class="clothing-item">
-            <span class="clothing-icon">👕</span>
-            <span class="clothing-label">上身</span>
-            <span class="clothing-desc">發熱衣＋薄毛衣＋輕薄羽絨外套</span>
-          </div>
-          <div class="clothing-item">
-            <span class="clothing-icon">👖</span>
-            <span class="clothing-label">下身</span>
-            <span class="clothing-desc">牛仔褲或長褲，可搭配薄發熱褲</span>
-          </div>
-          <div class="clothing-item">
-            <span class="clothing-icon">👟</span>
-            <span class="clothing-label">鞋子</span>
-            <span class="clothing-desc">舒適好走的運動鞋或健走鞋</span>
-          </div>
-          <div class="clothing-item">
-            <span class="clothing-icon">🧣</span>
-            <span class="clothing-label">配件</span>
-            <span class="clothing-desc">圍巾、折疊傘、薄手套</span>
-          </div>
-        </div>
       </div>
     `
   },
@@ -659,6 +641,21 @@ const WMO_WEATHER_ICONS = {
   99: { icon: '⛈️', desc: '雷雨冰雹' }
 };
 
+// WMO Weather Code text descriptions for outfit advisor prompt
+const WMO_WEATHER_TEXT = {
+  0: "晴天", 1: "晴時多雲", 2: "多雲", 3: "陰天",
+  45: "霧", 48: "霧淞",
+  51: "微毛毛雨", 53: "毛毛雨", 55: "大毛毛雨",
+  61: "小雨", 63: "中雨", 65: "大雨",
+  71: "小雪", 73: "中雪", 75: "大雪", 77: "雪粒",
+  80: "陣雨", 81: "中陣雨", 82: "大陣雨",
+  95: "雷陣雨", 99: "強雷陣雨"
+};
+
+// State for selected weather day
+let selectedWeatherDayIndex = null;
+let detailedWeatherCache = {};
+
 // ========================================
 // Functions
 // ========================================
@@ -691,9 +688,13 @@ async function fetchWeatherData(city) {
     `;
   }
   
+  // Reset outfit advice when changing city
+  selectedWeatherDayIndex = null;
+  resetOutfitAdvice();
+  
   try {
-    // Build API URL with Open-Meteo JMA
-    let url = `https://api.open-meteo.com/v1/jma?latitude=${location.lat}&longitude=${location.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours&timezone=Asia/Tokyo&forecast_days=3`;
+    // Build API URL with Open-Meteo JMA - include more detailed data for outfit advisor
+    let url = `https://api.open-meteo.com/v1/jma?latitude=${location.lat}&longitude=${location.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_probability_max,snowfall_sum,windspeed_10m_max,uv_index_max&hourly=relativehumidity_2m&timezone=Asia/Tokyo&forecast_days=3`;
     
     // Add elevation for mountain areas (more accurate temperature)
     if (location.elevation) {
@@ -712,6 +713,7 @@ async function fetchWeatherData(city) {
     // Cache the data
     weatherCache[city] = {
       data: processed,
+      rawData: data,
       timestamp: Date.now()
     };
     localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
@@ -730,16 +732,33 @@ async function fetchWeatherData(city) {
 
 function processJMAWeatherData(data) {
   const daily = data.daily;
+  const hourly = data.hourly;
   
   return daily.time.map((dateStr, index) => {
     const date = new Date(dateStr);
+    
+    // Calculate average humidity for the day (hourly data has 24 entries per day)
+    const startHour = index * 24;
+    const endHour = startHour + 24;
+    const dayHumidity = hourly?.relativehumidity_2m?.slice(startHour, endHour) || [];
+    const avgHumidity = dayHumidity.length > 0 
+      ? Math.round(dayHumidity.reduce((a, b) => a + b, 0) / dayHumidity.length)
+      : 60;
+    
     return {
       date: date,
+      dateStr: dateStr,
       tempMax: Math.round(daily.temperature_2m_max[index]),
       tempMin: Math.round(daily.temperature_2m_min[index]),
+      apparentTempMax: daily.apparent_temperature_max?.[index] ?? daily.temperature_2m_max[index],
+      apparentTempMin: daily.apparent_temperature_min?.[index] ?? daily.temperature_2m_min[index],
       weatherCode: daily.weather_code[index],
-      precipitation: daily.precipitation_sum[index],
-      precipHours: daily.precipitation_hours[index]
+      precipitation: daily.precipitation_sum?.[index] ?? 0,
+      precipProbability: daily.precipitation_probability_max?.[index] ?? 0,
+      snowfall: daily.snowfall_sum?.[index] ?? 0,
+      windSpeed: daily.windspeed_10m_max?.[index] ?? 0,
+      uvIndex: daily.uv_index_max?.[index] ?? 0,
+      humidity: avgHumidity
     };
   });
 }
@@ -750,13 +769,19 @@ function renderWeatherForecast(forecast, city, isCached = false) {
   
   if (!grid) return;
   
-  grid.innerHTML = forecast.map(day => {
+  grid.innerHTML = forecast.map((day, index) => {
     const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
     const weather = getWeatherIcon(day.weatherCode);
     const hasRain = day.precipitation > 0;
+    const isSelected = selectedWeatherDayIndex === index;
     
     return `
-      <div class="weather-day-card ${hasRain ? 'has-rain' : ''}">
+      <div class="weather-day-card ${hasRain ? 'has-rain' : ''} ${isSelected ? 'selected' : ''}" 
+           data-day-index="${index}" 
+           data-city="${city}"
+           role="button"
+           tabindex="0"
+           aria-label="查看 ${dateStr} 穿衣建議">
         <div class="weather-day-date">${dateStr}</div>
         <div class="weather-day-icon" title="${weather.desc}">${weather.icon}</div>
         <div class="weather-day-info">
@@ -769,6 +794,222 @@ function renderWeatherForecast(forecast, city, isCached = false) {
       </div>
     `;
   }).join('');
+  
+  // Add click event listeners to weather cards
+  grid.querySelectorAll('.weather-day-card').forEach(card => {
+    card.addEventListener('click', handleWeatherDayClick);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleWeatherDayClick(e);
+      }
+    });
+  });
+}
+
+// ========================================
+// Outfit Advisor Functions
+// ========================================
+
+function handleWeatherDayClick(e) {
+  const card = e.currentTarget;
+  const dayIndex = parseInt(card.dataset.dayIndex);
+  const city = card.dataset.city;
+  
+  // Update selected state
+  selectedWeatherDayIndex = dayIndex;
+  
+  // Update card visual states
+  document.querySelectorAll('.weather-day-card').forEach((c, i) => {
+    c.classList.toggle('selected', i === dayIndex);
+  });
+  
+  // Get weather data for the selected day
+  const cachedData = weatherCache[city];
+  if (!cachedData || !cachedData.data[dayIndex]) {
+    showOutfitError('無法取得天氣資料');
+    return;
+  }
+  
+  const dayData = cachedData.data[dayIndex];
+  fetchOutfitAdvice(dayData, city);
+}
+
+function buildWeatherPrompt(dayData) {
+  const weatherDesc = WMO_WEATHER_TEXT[dayData.weatherCode] ?? "未知";
+  const tempDiff = (dayData.tempMax - dayData.tempMin).toFixed(1);
+  const avgTemp = ((dayData.tempMax + dayData.tempMin) / 2).toFixed(1);
+  const apparentAvg = ((dayData.apparentTempMax + dayData.apparentTempMin) / 2).toFixed(1);
+  
+  return `氣溫 ${avgTemp}°C，` +
+    `體感 ${apparentAvg}°C，` +
+    `天氣：${weatherDesc}，` +
+    `今日最高 ${dayData.tempMax}°C／最低 ${dayData.tempMin}°C，` +
+    `日夜溫差 ${tempDiff}°C，` +
+    `當前降水 ${dayData.precipitation}mm，今日降雨機率 ${dayData.precipProbability}%，` +
+    `降雪 ${dayData.snowfall}cm，` +
+    `風速 ${dayData.windSpeed}km/h，` +
+    `濕度 ${dayData.humidity}%，` +
+    `UV指數 ${dayData.uvIndex}`;
+}
+
+async function fetchOutfitAdvice(dayData, city) {
+  const section = document.getElementById('outfit-advice-section');
+  if (!section) return;
+  
+  const location = WEATHER_LOCATIONS[city];
+  const dateStr = `${dayData.date.getMonth() + 1}/${dayData.date.getDate()}`;
+  
+  // Show loading state
+  section.innerHTML = `
+    <div class="outfit-advice-card loading">
+      <div class="outfit-advice-header">
+        <div class="outfit-date-badge">
+          <span class="outfit-date">${dateStr}</span>
+          <span class="outfit-location">${location.icon} ${location.name}</span>
+        </div>
+      </div>
+      <div class="outfit-loading">
+        <span class="loading-spinner"></span>
+        <span>AI 正在分析穿搭建議...</span>
+      </div>
+    </div>
+  `;
+  
+  try {
+    const weatherPrompt = buildWeatherPrompt(dayData);
+    
+    const response = await fetch('https://outfit-advisor.cyhung02.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ weather_prompt: weatherPrompt })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API error: ${response.status}`);
+    }
+    
+    const advice = await response.json();
+    renderOutfitAdvice(advice, dayData, city);
+    
+  } catch (error) {
+    console.error('Outfit advice fetch error:', error);
+    showOutfitError('無法取得穿搭建議，請稍後再試');
+  }
+}
+
+function renderOutfitAdvice(advice, dayData, city) {
+  const section = document.getElementById('outfit-advice-section');
+  if (!section) return;
+  
+  const location = WEATHER_LOCATIONS[city];
+  const dateStr = `${dayData.date.getMonth() + 1}/${dayData.date.getDate()}`;
+  const weather = getWeatherIcon(dayData.weatherCode);
+  
+  // Build accessories HTML
+  const accessoriesHtml = advice.accessories && advice.accessories.length > 0
+    ? advice.accessories.map(acc => `<span class="outfit-accessory-tag">${acc}</span>`).join('')
+    : '<span class="outfit-no-accessory">無需額外配件</span>';
+  
+  // Build warning HTML
+  const warningHtml = advice.warning
+    ? `<div class="outfit-warning">
+         <span class="outfit-warning-icon">⚠️</span>
+         <span>${advice.warning}</span>
+       </div>`
+    : '';
+  
+  section.innerHTML = `
+    <div class="outfit-advice-card">
+      <div class="outfit-advice-header">
+        <div class="outfit-date-badge">
+          <span class="outfit-date">${dateStr}</span>
+          <span class="outfit-location">${location.icon} ${location.name}</span>
+        </div>
+        <div class="outfit-weather-badge">
+          <span class="outfit-weather-icon">${weather.icon}</span>
+          <span class="outfit-temp-range">${dayData.tempMin}°~${dayData.tempMax}°</span>
+        </div>
+      </div>
+      
+      <div class="outfit-summary">
+        <span class="outfit-summary-text">${advice.summary}</span>
+      </div>
+      
+      <div class="outfit-items-grid">
+        <div class="outfit-item">
+          <div class="outfit-item-icon">👕</div>
+          <div class="outfit-item-content">
+            <div class="outfit-item-label">上身</div>
+            <div class="outfit-item-value">${advice.top}</div>
+          </div>
+        </div>
+        
+        <div class="outfit-item">
+          <div class="outfit-item-icon">👖</div>
+          <div class="outfit-item-content">
+            <div class="outfit-item-label">下身</div>
+            <div class="outfit-item-value">${advice.bottoms}</div>
+          </div>
+        </div>
+        
+        <div class="outfit-item">
+          <div class="outfit-item-icon">👟</div>
+          <div class="outfit-item-content">
+            <div class="outfit-item-label">鞋子</div>
+            <div class="outfit-item-value">${advice.footwear}</div>
+          </div>
+        </div>
+        
+        <div class="outfit-item outfit-item-accessories">
+          <div class="outfit-item-icon">🎒</div>
+          <div class="outfit-item-content">
+            <div class="outfit-item-label">配件</div>
+            <div class="outfit-accessories-tags">${accessoriesHtml}</div>
+          </div>
+        </div>
+      </div>
+      
+      ${warningHtml}
+    </div>
+  `;
+}
+
+function showOutfitError(message) {
+  const section = document.getElementById('outfit-advice-section');
+  if (!section) return;
+  
+  section.innerHTML = `
+    <div class="outfit-advice-card outfit-error">
+      <div class="outfit-error-content">
+        <span class="outfit-error-icon">😅</span>
+        <span class="outfit-error-text">${message}</span>
+      </div>
+      <button class="outfit-retry-btn" onclick="retryOutfitAdvice()">重新嘗試</button>
+    </div>
+  `;
+}
+
+function resetOutfitAdvice() {
+  const section = document.getElementById('outfit-advice-section');
+  if (!section) return;
+  
+  section.innerHTML = `
+    <div class="outfit-advice-placeholder">
+      <span class="outfit-placeholder-icon">👆</span>
+      <span class="outfit-placeholder-text">點選上方日期，取得 AI 穿搭建議</span>
+    </div>
+  `;
+}
+
+function retryOutfitAdvice() {
+  if (selectedWeatherDayIndex !== null && currentWeatherCity) {
+    const cachedData = weatherCache[currentWeatherCity];
+    if (cachedData && cachedData.data[selectedWeatherDayIndex]) {
+      fetchOutfitAdvice(cachedData.data[selectedWeatherDayIndex], currentWeatherCity);
+    }
+  }
 }
 
 function renderWeatherFallback(city) {

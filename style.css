@@ -1707,6 +1707,303 @@ body {
   margin-top: var(--spacing-md);
 }
 
+.weather-forecast-hint {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* Clickable Weather Day Cards */
+.weather-day-card {
+  cursor: pointer;
+}
+
+.weather-day-card.selected {
+  background: linear-gradient(165deg, var(--color-indigo) 0%, var(--color-indigo-light) 100%);
+  border-color: var(--color-indigo);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(26, 54, 93, 0.25);
+}
+
+.weather-day-card.selected::before {
+  background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold-light) 100%);
+}
+
+.weather-day-card.selected .weather-day-date {
+  color: white;
+}
+
+.weather-day-card.selected .temp-high {
+  color: var(--color-sakura-light);
+}
+
+.weather-day-card.selected .temp-low {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.weather-day-card.selected .weather-day-rain {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Outfit Advice Section */
+.outfit-advice-section {
+  margin-bottom: var(--spacing-md);
+}
+
+.outfit-advice-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, #f8f6f3 0%, #efe9e1 100%);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-washi-dark);
+}
+
+.outfit-placeholder-icon {
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.outfit-placeholder-text {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  text-align: center;
+}
+
+.outfit-advice-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  animation: outfit-slide-in 0.4s ease;
+  overflow: hidden;
+}
+
+@keyframes outfit-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.outfit-advice-card.loading {
+  min-height: 150px;
+}
+
+.outfit-advice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-sm);
+}
+
+.outfit-date-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.outfit-date {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-indigo);
+}
+
+.outfit-location {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+}
+
+.outfit-weather-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-sakura-light) 0%, var(--color-sakura) 100%);
+  border-radius: var(--radius-md);
+}
+
+.outfit-weather-icon {
+  font-size: 1.25rem;
+}
+
+.outfit-temp-range {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-indigo);
+}
+
+.outfit-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl);
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+}
+
+.outfit-summary {
+  background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-indigo-light) 100%);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.outfit-summary-text {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.outfit-items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.outfit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-washi);
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease;
+}
+
+.outfit-item:hover {
+  transform: translateX(4px);
+}
+
+.outfit-item-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+}
+
+.outfit-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.outfit-item-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-indigo);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.outfit-item-value {
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  line-height: 1.5;
+}
+
+.outfit-item-accessories {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe4e4 100%);
+}
+
+.outfit-accessories-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.outfit-accessory-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: white;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  color: var(--color-indigo);
+  box-shadow: var(--shadow-sm);
+}
+
+.outfit-no-accessory {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+
+.outfit-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, #fef3cd 0%, #ffeaa7 100%);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-gold);
+}
+
+.outfit-warning-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.outfit-warning span:last-child {
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  line-height: 1.5;
+}
+
+/* Outfit Error State */
+.outfit-advice-card.outfit-error {
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.outfit-error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.outfit-error-icon {
+  font-size: 2rem;
+}
+
+.outfit-error-text {
+  font-size: 0.9375rem;
+  color: var(--color-ink-light);
+}
+
+.outfit-retry-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-indigo);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.outfit-retry-btn:hover {
+  background: var(--color-indigo-light);
+}
+
 /* Phrase Card Updates */
 .phrase-header {
   display: flex;
