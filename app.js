@@ -1,6 +1,6 @@
 // Tokyo Trip PWA - Application Logic
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 
 // ========================================
 // Trip Dates Configuration
@@ -342,9 +342,12 @@ const practicalInfo = {
           </div>
         </div>
         <div class="weather-location-tabs" id="weather-location-tabs">
-          <button class="weather-loc-tab active" data-city="tokyo">東京</button>
-          <button class="weather-loc-tab" data-city="hakone">箱根</button>
-          <button class="weather-loc-tab" data-city="kawaguchiko">河口湖</button>
+          <button class="weather-loc-tab active" data-city="tokyo">🗼 東京</button>
+          <button class="weather-loc-tab" data-city="hakone">♨️ 箱根</button>
+          <button class="weather-loc-tab" data-city="kawaguchiko">🗻 河口湖</button>
+        </div>
+        <div class="weather-data-source">
+          資料來源：日本氣象廳 (JMA) via Open-Meteo
         </div>
       </div>
       <div class="weather-tip">
@@ -619,11 +622,43 @@ let customItems = JSON.parse(localStorage.getItem('customItems') || '[]');
 let weatherCache = JSON.parse(localStorage.getItem('weatherCache') || '{}');
 let currentWeatherCity = 'tokyo';
 
-// Weather API configuration
+// Weather API configuration (Open-Meteo JMA API)
 const WEATHER_LOCATIONS = {
-  tokyo: { lat: 35.6762, lon: 139.6503, name: '東京', icon: '🗼' },
-  hakone: { lat: 35.2324, lon: 139.1069, name: '箱根', icon: '♨️' },
-  kawaguchiko: { lat: 35.5016, lon: 138.7660, name: '河口湖', icon: '🗻' }
+  tokyo: { lat: 35.680312, lon: 139.769212, name: '東京', icon: '🗼', elevation: null },
+  hakone: { lat: 35.244488, lon: 139.019704, name: '箱根', icon: '♨️', elevation: 700 },
+  kawaguchiko: { lat: 35.521813, lon: 138.770037, name: '河口湖', icon: '🗻', elevation: 830 }
+};
+
+// WMO Weather Code mapping
+const WMO_WEATHER_ICONS = {
+  0: { icon: '☀️', desc: '晴天' },
+  1: { icon: '🌤️', desc: '大致晴' },
+  2: { icon: '⛅', desc: '局部多雲' },
+  3: { icon: '☁️', desc: '多雲' },
+  45: { icon: '🌫️', desc: '霧' },
+  48: { icon: '🌫️', desc: '凍霧' },
+  51: { icon: '🌦️', desc: '毛毛雨' },
+  53: { icon: '🌦️', desc: '毛毛雨' },
+  55: { icon: '🌦️', desc: '毛毛雨' },
+  56: { icon: '🌧️', desc: '凍雨' },
+  57: { icon: '🌧️', desc: '凍雨' },
+  61: { icon: '🌧️', desc: '小雨' },
+  63: { icon: '🌧️', desc: '中雨' },
+  65: { icon: '🌧️', desc: '大雨' },
+  66: { icon: '🌧️', desc: '凍雨' },
+  67: { icon: '🌧️', desc: '凍雨' },
+  71: { icon: '🌨️', desc: '小雪' },
+  73: { icon: '🌨️', desc: '中雪' },
+  75: { icon: '❄️', desc: '大雪' },
+  77: { icon: '🌨️', desc: '冰粒' },
+  80: { icon: '🌦️', desc: '小陣雨' },
+  81: { icon: '🌧️', desc: '陣雨' },
+  82: { icon: '🌧️', desc: '大陣雨' },
+  85: { icon: '🌨️', desc: '小陣雪' },
+  86: { icon: '❄️', desc: '大陣雪' },
+  95: { icon: '⛈️', desc: '雷雨' },
+  96: { icon: '⛈️', desc: '雷雨冰雹' },
+  99: { icon: '⛈️', desc: '雷雨冰雹' }
 };
 
 // ========================================
@@ -637,41 +672,46 @@ function showToast(message) {
 }
 
 // ========================================
-// Weather Functions
+// Weather Functions (Open-Meteo JMA API)
 // ========================================
 
-const WEATHER_ICONS = {
-  '01d': '☀️', '01n': '🌙',
-  '02d': '⛅', '02n': '☁️',
-  '03d': '☁️', '03n': '☁️',
-  '04d': '☁️', '04n': '☁️',
-  '09d': '🌧️', '09n': '🌧️',
-  '10d': '🌦️', '10n': '🌧️',
-  '11d': '⛈️', '11n': '⛈️',
-  '13d': '❄️', '13n': '❄️',
-  '50d': '🌫️', '50n': '🌫️'
-};
+function getWeatherIcon(code) {
+  return WMO_WEATHER_ICONS[code] || { icon: '🌤️', desc: '晴時多雲' };
+}
 
 async function fetchWeatherData(city) {
   const location = WEATHER_LOCATIONS[city];
-  const apiKey = localStorage.getItem('openweathermap_api_key');
   
-  if (!apiKey) {
-    return renderWeatherFallback(city);
+  // Show loading state
+  const grid = document.getElementById('weather-forecast-grid');
+  if (grid) {
+    grid.innerHTML = `
+      <div class="weather-loading">
+        <span class="loading-spinner"></span>
+        <span>載入 ${location.name} 天氣資料中...</span>
+      </div>
+    `;
   }
   
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=ja`
-    );
+    // Build API URL with Open-Meteo JMA
+    let url = `https://api.open-meteo.com/v1/jma?latitude=${location.lat}&longitude=${location.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours&timezone=Asia/Tokyo&forecast_days=7`;
+    
+    // Add elevation for mountain areas (more accurate temperature)
+    if (location.elevation) {
+      url += `&elevation=${location.elevation}`;
+    }
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error('API request failed');
     }
     
     const data = await response.json();
-    const processed = processWeatherData(data);
+    const processed = processJMAWeatherData(data);
     
+    // Cache the data
     weatherCache[city] = {
       data: processed,
       timestamp: Date.now()
@@ -681,6 +721,7 @@ async function fetchWeatherData(city) {
     renderWeatherForecast(processed, city);
   } catch (error) {
     console.error('Weather fetch error:', error);
+    // Try to use cached data
     if (weatherCache[city]) {
       renderWeatherForecast(weatherCache[city].data, city, true);
     } else {
@@ -689,32 +730,20 @@ async function fetchWeatherData(city) {
   }
 }
 
-function processWeatherData(data) {
-  const dailyMap = new Map();
+function processJMAWeatherData(data) {
+  const daily = data.daily;
   
-  data.list.forEach(item => {
-    const date = new Date(item.dt * 1000).toLocaleDateString('ja-JP');
-    if (!dailyMap.has(date)) {
-      dailyMap.set(date, {
-        date: new Date(item.dt * 1000),
-        temps: [],
-        icons: [],
-        descriptions: []
-      });
-    }
-    const day = dailyMap.get(date);
-    day.temps.push(item.main.temp);
-    day.icons.push(item.weather[0].icon);
-    day.descriptions.push(item.weather[0].description);
+  return daily.time.map((dateStr, index) => {
+    const date = new Date(dateStr);
+    return {
+      date: date,
+      tempMax: Math.round(daily.temperature_2m_max[index]),
+      tempMin: Math.round(daily.temperature_2m_min[index]),
+      weatherCode: daily.weather_code[index],
+      precipitation: daily.precipitation_sum[index],
+      precipHours: daily.precipitation_hours[index]
+    };
   });
-  
-  return Array.from(dailyMap.values()).slice(0, 7).map(day => ({
-    date: day.date,
-    tempMin: Math.round(Math.min(...day.temps)),
-    tempMax: Math.round(Math.max(...day.temps)),
-    icon: day.icons[Math.floor(day.icons.length / 2)],
-    description: day.descriptions[Math.floor(day.descriptions.length / 2)]
-  }));
 }
 
 function renderWeatherForecast(forecast, city, isCached = false) {
@@ -729,17 +758,19 @@ function renderWeatherForecast(forecast, city, isCached = false) {
   grid.innerHTML = forecast.map(day => {
     const weekday = weekdays[day.date.getDay()];
     const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
-    const icon = WEATHER_ICONS[day.icon] || '🌤️';
+    const weather = getWeatherIcon(day.weatherCode);
+    const hasRain = day.precipitation > 0;
     
     return `
-      <div class="weather-day-card">
+      <div class="weather-day-card ${hasRain ? 'has-rain' : ''}">
         <div class="weather-day-date">${dateStr}</div>
         <div class="weather-day-weekday">(${weekday})</div>
-        <div class="weather-day-icon">${icon}</div>
+        <div class="weather-day-icon" title="${weather.desc}">${weather.icon}</div>
         <div class="weather-day-temps">
           <span class="temp-high">${day.tempMax}°</span>
           <span class="temp-low">${day.tempMin}°</span>
         </div>
+        ${hasRain ? `<div class="weather-day-rain">☔ ${day.precipitation.toFixed(1)}mm</div>` : ''}
       </div>
     `;
   }).join('');
@@ -747,9 +778,10 @@ function renderWeatherForecast(forecast, city, isCached = false) {
   if (updateInfo) {
     const cacheTime = weatherCache[city]?.timestamp;
     const timeStr = cacheTime ? new Date(cacheTime).toLocaleString('zh-TW') : '';
+    const sourceLabel = '<span class="weather-source">JMA</span>';
     updateInfo.innerHTML = isCached 
-      ? `<span class="cached-label">離線快取</span> ${timeStr}`
-      : `更新時間：${timeStr}`;
+      ? `${sourceLabel}<span class="cached-label">離線快取</span> ${timeStr}`
+      : `${sourceLabel}更新：${timeStr}`;
   }
 }
 
@@ -772,30 +804,10 @@ function renderWeatherFallback(city) {
       <div class="weather-fallback-icon">${location.icon}</div>
       <div class="weather-fallback-location">${location.name}</div>
       <div class="weather-fallback-temp">${temps.min}–${temps.max}°C</div>
-      <div class="weather-fallback-note">預估溫度範圍</div>
-      <div class="weather-api-setup">
-        <p>如需即時天氣預報，請設定 OpenWeatherMap API Key：</p>
-        <input type="text" id="api-key-input" class="api-key-input" placeholder="輸入 API Key">
-        <button id="save-api-key" class="save-api-key-btn">儲存</button>
-        <a href="https://openweathermap.org/api" target="_blank" rel="noopener" class="api-link">取得免費 API Key</a>
-      </div>
+      <div class="weather-fallback-note">預估溫度範圍（無法取得即時資料）</div>
+      <button class="weather-retry-btn" onclick="fetchWeatherData('${city}')">重新載入</button>
     </div>
   `;
-  
-  setTimeout(() => {
-    const saveBtn = document.getElementById('save-api-key');
-    const input = document.getElementById('api-key-input');
-    if (saveBtn && input) {
-      saveBtn.addEventListener('click', () => {
-        const key = input.value.trim();
-        if (key) {
-          localStorage.setItem('openweathermap_api_key', key);
-          showToast('API Key 已儲存');
-          fetchWeatherData(city);
-        }
-      });
-    }
-  }, 100);
 }
 
 // ========================================

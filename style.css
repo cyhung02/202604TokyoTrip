@@ -1616,55 +1616,51 @@ body {
 .weather-fallback-note {
   font-size: 0.75rem;
   color: var(--color-ink-muted);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 }
 
-.weather-api-setup {
-  background: var(--color-washi);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  text-align: left;
-}
-
-.weather-api-setup p {
-  font-size: 0.8125rem;
-  color: var(--color-ink-light);
-  margin-bottom: var(--spacing-sm);
-}
-
-.api-key-input {
-  width: 100%;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--color-washi-dark);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  margin-bottom: var(--spacing-sm);
-}
-
-.api-key-input:focus {
-  outline: none;
-  border-color: var(--color-indigo);
-}
-
-.save-api-key-btn {
-  padding: var(--spacing-sm) var(--spacing-md);
+.weather-retry-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
   background: var(--color-indigo);
   color: white;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 0.8125rem;
   cursor: pointer;
-  margin-right: var(--spacing-sm);
   transition: background var(--transition-fast);
 }
 
-.save-api-key-btn:hover {
+.weather-retry-btn:hover {
   background: var(--color-indigo-light);
 }
 
-.api-link {
-  font-size: 0.75rem;
-  color: var(--color-indigo);
+.weather-day-card.has-rain {
+  background: linear-gradient(135deg, #4a5568 0%, #718096 100%);
+}
+
+.weather-day-rain {
+  font-size: 0.5625rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.weather-source {
+  background: var(--color-indigo);
+  color: white;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.5625rem;
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+.weather-data-source {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-washi-dark);
 }
 
 /* Phrase Card Updates */
