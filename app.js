@@ -585,7 +585,7 @@ function renderHotels() {
             <span class="hotel-detail-label">特色</span>
             <span class="hotel-detail-value">${hotel.features}</span>
           </div>
-          <a href="https://www.google.com.tw/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener" class="maps-btn maps-btn-full" onclick="event.stopPropagation()">
+          <a href="https://www.google.com/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener" class="maps-btn maps-btn-full" onclick="event.stopPropagation()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
@@ -614,7 +614,7 @@ function renderDayContent(day) {
         <div class="spot-card">
           <div class="spot-header">
             <div class="spot-name">${spot.name}</div>
-            <a href="https://www.google.com.tw/maps/search/${encodeURIComponent(spot.name)}" target="_blank" rel="noopener" class="maps-btn" title="在 Google Maps 開啟">
+            <a href="https://www.google.com/maps/search/${encodeURIComponent(spot.name)}" target="_blank" rel="noopener" class="maps-btn" title="在 Google Maps 開啟">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
@@ -736,19 +736,14 @@ function setupScrollAnimations() {
 }
 
 function setupNavVisibility() {
-  let lastScroll = 0;
   const heroHeight = document.querySelector('.hero').offsetHeight;
 
   window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > heroHeight * 0.5) {
+    if (window.pageYOffset > heroHeight * 0.5) {
       nav.classList.add('visible');
     } else {
       nav.classList.remove('visible');
     }
-    
-    lastScroll = currentScroll;
   });
 }
 
