@@ -1,6 +1,5 @@
 // Tokyo Trip PWA - Application Logic
-
-const APP_VERSION = '1.5.1';
+// APP_VERSION is fetched from sw.js to keep version in one place
 
 // ========================================
 // Trip Dates Configuration
@@ -1157,10 +1156,13 @@ dayTabs.addEventListener('click', (e) => {
       renderDayContent(day);
       
       // Scroll to day content with offset for sticky header
+      // Account for safe-area-inset-top on iPhone PWA
       setTimeout(() => {
         const dayHeader = document.querySelector('.day-header');
         if (dayHeader) {
-          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - 120;
+          const safeAreaTopStr = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top').trim();
+          const safeAreaTop = parseFloat(safeAreaTopStr) || 0;
+          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - 120 - safeAreaTop;
           window.scrollTo({ top: offsetTop, behavior: 'smooth' });
         }
       }, 50);
@@ -1255,18 +1257,30 @@ document.addEventListener('DOMContentLoaded', () => {
     window.speechSynthesis.getVoices();
   }
   
-  // Update footer version
-  const footerAuthor = document.querySelector('.footer-author');
-  if (footerAuthor) {
-    footerAuthor.innerHTML = `Chung-Yao 編製 <span class="footer-version">v${APP_VERSION}</span>`;
-  }
-
-  // Register Service Worker
+  // Register Service Worker and update footer version from sw.js
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
       .then(reg => console.log('Service Worker registered'))
       .catch(err => console.log('Service Worker registration failed', err));
   }
+  
+  // Fetch version from sw.js (single source of truth)
+  fetch('sw.js')
+    .then(res => res.text())
+    .then(text => {
+      const match = text.match(/APP_VERSION\s*=\s*['"]([^'"]+)['"]/);
+      const version = match ? match[1] : '?';
+      const footerAuthor = document.querySelector('.footer-author');
+      if (footerAuthor) {
+        footerAuthor.innerHTML = `Chung-Yao 編製 <span class="footer-version">v${version}</span>`;
+      }
+    })
+    .catch(() => {
+      const footerAuthor = document.querySelector('.footer-author');
+      if (footerAuthor) {
+        footerAuthor.innerHTML = `Chung-Yao 編製`;
+      }
+    });
 });
 
 function updateDayTabsWithDates() {
