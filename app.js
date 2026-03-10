@@ -661,12 +661,6 @@ function getTodayDay() {
   return 1;
 }
 
-function scrollToFirstSection() {
-  const first = document.getElementById('itinerary');
-  if (first) {
-    first.scrollIntoView({ behavior: 'smooth' });
-  }
-}
 
 function renderHotels() {
   hotelTimeline.innerHTML = hotels.map(hotel => `
@@ -869,16 +863,6 @@ function setupScrollAnimations() {
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 }
 
-function scrollToElementWithOffset(element, additionalOffset = 0) {
-  const elementTop = element.getBoundingClientRect().top + window.scrollY;
-  const targetPosition = elementTop - additionalOffset;
-  
-  window.scrollTo({
-    top: Math.max(0, targetPosition),
-    behavior: 'smooth'
-  });
-}
-
 function scrollToDayContent() {
   const dayHeader = document.querySelector('.day-header');
   if (!dayHeader) return;
@@ -908,7 +892,7 @@ function setupBottomNav() {
   const sectionIds = ['itinerary', 'hotels', 'weather', 'flights', 'info', 'phrases'];
   const visibleSections = new Set();
 
-  // Click → scroll to section
+  // Click → scroll to section (uses scrollIntoView which respects scroll-margin-top)
   bottomNav.addEventListener('click', (e) => {
     const item = e.target.closest('.bottom-nav-item');
     if (!item) return;
@@ -916,20 +900,44 @@ function setupBottomNav() {
     const sectionId = item.dataset.section;
     const targetEl = document.getElementById(sectionId);
     if (targetEl) {
-      const scrollTarget = targetEl.querySelector('.section-title')
-                        || targetEl.querySelector('.wx-header')
-                        || targetEl;
-      scrollToElementWithOffset(scrollTarget, 24);
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 
-  // Hero observer → transparent / frosted-glass toggle
-  const heroObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      bottomNav.classList.toggle('is-hero', entry.isIntersecting);
-    });
-  }, { threshold: 0.15 });
-  heroObserver.observe(hero);
+  // Gradual nav transparency based on scroll position
+  let navTicking = false;
+  function updateNavTransparency() {
+    const heroHeight = hero.offsetHeight;
+    const scrollY = window.scrollY;
+    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.6)));
+
+    const bgAlpha = 0.82 * progress;
+    bottomNav.style.background = progress < 0.02
+      ? 'transparent'
+      : `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
+
+    if (progress > 0.1) {
+      bottomNav.style.backdropFilter = 'saturate(180%) blur(20px)';
+      bottomNav.style.webkitBackdropFilter = 'saturate(180%) blur(20px)';
+    } else {
+      bottomNav.style.backdropFilter = 'none';
+      bottomNav.style.webkitBackdropFilter = 'none';
+    }
+
+    bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(0.08 * progress).toFixed(3)})`;
+    bottomNav.classList.toggle('is-hero', progress < 0.5);
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!navTicking) {
+      requestAnimationFrame(() => {
+        updateNavTransparency();
+        navTicking = false;
+      });
+      navTicking = true;
+    }
+  }, { passive: true });
+  updateNavTransparency();
 
   // Section observer → auto-highlight active tab
   const sectionObserver = new IntersectionObserver((entries) => {
@@ -1061,7 +1069,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderInfoContent(currentInfo);
   renderPhrases();
   setupScrollAnimations();
-  setupHeroScroll();
   setupBottomNav();
   
   // Initialize weather section
@@ -1132,10 +1139,3 @@ function updateDayTabsWithDates() {
   });
 }
 
-function setupHeroScroll() {
-  const heroScroll = document.querySelector('.hero-scroll');
-  if (heroScroll) {
-    heroScroll.style.cursor = 'pointer';
-    heroScroll.addEventListener('click', scrollToFirstSection);
-  }
-}

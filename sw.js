@@ -1,6 +1,6 @@
 // Service Worker for Tokyo Trip PWA
 
-const APP_VERSION = '2.0.1';
+const APP_VERSION = '2.1.0';
 const CACHE_NAME = `tokyo-trip-v${APP_VERSION}`;
 const FONT_CACHE = 'tokyo-trip-fonts-v1';
 
@@ -12,7 +12,8 @@ const ASSETS = [
   './app.js',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './hero.jpg'
 ];
 
 // Install event - cache assets
