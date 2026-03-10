@@ -18,25 +18,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <button class="nav-toggle" id="nav-toggle" aria-label="開啟選單" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <ul class="nav-menu" id="nav-menu">
-        <li><a href="#itinerary" data-section="itinerary" id="nav-today">今日行程</a></li>
-        <li><a href="#flights" data-section="flights">航班</a></li>
-        <li><a href="#hotels" data-section="hotels">住宿</a></li>
-        <li><a href="#weather" data-section="weather">天氣</a></li>
-        <li><a href="#info" data-section="info">實用資訊</a></li>
-        <li><a href="#phrases" data-section="phrases">日文短句</a></li>
-      </ul>
-    </div>
-  </nav>
-
   <!-- Hero Section -->
   <section class="hero" id="hero">
     <div class="hero-overlay"></div>
@@ -58,27 +39,97 @@
     </div>
   </section>
 
-  <!-- Highlights -->
-  <section class="highlights">
+  <!-- Itinerary Section -->
+  <section class="section" id="itinerary">
     <div class="container">
-      <div class="highlight-grid">
-        <div class="highlight-item">
-          <span class="highlight-icon">🌸</span>
-          <span class="highlight-text">東京賞櫻</span>
-        </div>
-        <div class="highlight-item">
-          <span class="highlight-icon">🚃</span>
-          <span class="highlight-text">江之電文化小旅行</span>
-        </div>
-        <div class="highlight-item">
-          <span class="highlight-icon">♨️</span>
-          <span class="highlight-text">箱根溫泉</span>
-        </div>
-        <div class="highlight-item">
-          <span class="highlight-icon">🗻</span>
-          <span class="highlight-text">富士山絕景</span>
+      <h2 class="section-title">
+        <span class="section-title-jp">旅程</span>
+        每日行程
+      </h2>
+
+      <!-- Day Tabs -->
+      <div class="day-tabs-wrapper">
+        <div class="day-tabs" id="day-tabs">
+          <button class="day-tab active" data-day="1">Day 1</button>
+          <button class="day-tab" data-day="2">Day 2</button>
+          <button class="day-tab" data-day="3">Day 3</button>
+          <button class="day-tab" data-day="4">Day 4</button>
+          <button class="day-tab" data-day="5">Day 5</button>
+          <button class="day-tab" data-day="6">Day 6</button>
+          <button class="day-tab" data-day="7">Day 7</button>
+          <button class="day-tab" data-day="8">Day 8</button>
         </div>
       </div>
+
+      <!-- Day Content -->
+      <div class="day-content" id="day-content">
+        <!-- Content will be rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Hotels Section -->
+  <section class="section section-alt" id="hotels">
+    <div class="container">
+      <h2 class="section-title">
+        <span class="section-title-jp">宿泊</span>
+        住宿總覽
+      </h2>
+
+      <div class="hotel-timeline" id="hotel-timeline">
+        <!-- Hotels will be rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Weather Section -->
+  <section class="wx" id="weather">
+    <div class="wx-inner">
+      <!-- Header -->
+      <header class="wx-header">
+        <div class="wx-brand">
+          <span class="wx-brand-jp">天気</span>
+          <span class="wx-brand-en">WEATHER</span>
+        </div>
+        <nav class="wx-nav" id="weather-location-selector">
+          <button class="wx-nav-btn active" data-location="tokyo">東京</button>
+          <button class="wx-nav-btn" data-location="kawaguchiko">河口湖</button>
+          <button class="wx-nav-btn" data-location="hakone">箱根</button>
+        </nav>
+      </header>
+
+      <!-- Hero: Current Weather -->
+      <article class="wx-hero" id="weather-current-card">
+        <div class="wx-hero-loader"><div class="wx-spinner"></div></div>
+      </article>
+
+      <!-- 7-Day Forecast Strip -->
+      <section class="wx-strip">
+        <header class="wx-strip-header">
+          <span class="wx-strip-label">7日間予報</span>
+          <span class="wx-strip-hint">タップで詳細</span>
+        </header>
+        <div class="wx-days" id="weather-7day-grid">
+          <div class="wx-days-loader"><div class="wx-spinner"></div></div>
+        </div>
+      </section>
+
+      <!-- AI Advisor -->
+      <section class="wx-ai" id="weather-ai-section">
+        <div class="wx-ai-empty">
+          <div class="wx-ai-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </div>
+          <p>點選上方日期<br/>查看 AI 穿搭建議</p>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="wx-footer">
+        <span>Open-Meteo / JMA</span>
+      </footer>
     </div>
   </section>
 
@@ -156,100 +207,6 @@
     </div>
   </section>
 
-  <!-- Hotels Section -->
-  <section class="section section-alt" id="hotels">
-    <div class="container">
-      <h2 class="section-title">
-        <span class="section-title-jp">宿泊</span>
-        住宿總覽
-      </h2>
-
-      <div class="hotel-timeline" id="hotel-timeline">
-        <!-- Hotels will be rendered by JS -->
-      </div>
-    </div>
-  </section>
-
-  <!-- Weather Section -->
-  <section class="wx" id="weather">
-    <div class="wx-inner">
-      <!-- Header -->
-      <header class="wx-header">
-        <div class="wx-brand">
-          <span class="wx-brand-jp">天気</span>
-          <span class="wx-brand-en">WEATHER</span>
-        </div>
-        <nav class="wx-nav" id="weather-location-selector">
-          <button class="wx-nav-btn active" data-location="tokyo">東京</button>
-          <button class="wx-nav-btn" data-location="kawaguchiko">河口湖</button>
-          <button class="wx-nav-btn" data-location="hakone">箱根</button>
-        </nav>
-      </header>
-
-      <!-- Hero: Current Weather -->
-      <article class="wx-hero" id="weather-current-card">
-        <div class="wx-hero-loader"><div class="wx-spinner"></div></div>
-      </article>
-
-      <!-- 7-Day Forecast Strip -->
-      <section class="wx-strip">
-        <header class="wx-strip-header">
-          <span class="wx-strip-label">7日間予報</span>
-          <span class="wx-strip-hint">タップで詳細</span>
-        </header>
-        <div class="wx-days" id="weather-7day-grid">
-          <div class="wx-days-loader"><div class="wx-spinner"></div></div>
-        </div>
-      </section>
-
-      <!-- AI Advisor -->
-      <section class="wx-ai" id="weather-ai-section">
-        <div class="wx-ai-empty">
-          <div class="wx-ai-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M12 19V5M5 12l7-7 7 7"/>
-            </svg>
-          </div>
-          <p>點選上方日期<br/>查看 AI 穿搭建議</p>
-        </div>
-      </section>
-
-      <!-- Footer -->
-      <footer class="wx-footer">
-        <span>Open-Meteo / JMA</span>
-      </footer>
-    </div>
-  </section>
-
-  <!-- Itinerary Section -->
-  <section class="section" id="itinerary">
-    <div class="container">
-      <h2 class="section-title">
-        <span class="section-title-jp">旅程</span>
-        每日行程
-      </h2>
-
-      <!-- Day Tabs -->
-      <div class="day-tabs-wrapper">
-        <div class="day-tabs" id="day-tabs">
-          <button class="day-tab active" data-day="1">Day 1</button>
-          <button class="day-tab" data-day="2">Day 2</button>
-          <button class="day-tab" data-day="3">Day 3</button>
-          <button class="day-tab" data-day="4">Day 4</button>
-          <button class="day-tab" data-day="5">Day 5</button>
-          <button class="day-tab" data-day="6">Day 6</button>
-          <button class="day-tab" data-day="7">Day 7</button>
-          <button class="day-tab" data-day="8">Day 8</button>
-        </div>
-      </div>
-
-      <!-- Day Content -->
-      <div class="day-content" id="day-content">
-        <!-- Content will be rendered by JS -->
-      </div>
-    </div>
-  </section>
-
   <!-- Practical Info Section -->
   <section class="section section-alt" id="info">
     <div class="container">
@@ -297,6 +254,36 @@
       <p class="footer-author">Chung-Yao 編製</p>
     </div>
   </footer>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bottom-nav-item active" data-section="itinerary" type="button">
+      <span class="bottom-nav-icon">🗓</span>
+      <span class="bottom-nav-label">行程</span>
+    </button>
+    <button class="bottom-nav-item" data-section="hotels" type="button">
+      <span class="bottom-nav-icon">🏨</span>
+      <span class="bottom-nav-label">住宿</span>
+    </button>
+    <button class="bottom-nav-item" data-section="weather" type="button">
+      <span class="bottom-nav-icon">🌤</span>
+      <span class="bottom-nav-label">天氣</span>
+    </button>
+    <button class="bottom-nav-item" data-section="flights" type="button">
+      <span class="bottom-nav-icon">✈️</span>
+      <span class="bottom-nav-label">航班</span>
+    </button>
+    <button class="bottom-nav-item" data-section="info" type="button">
+      <span class="bottom-nav-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <circle cx="6" cy="12" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="18" cy="12" r="2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav-label">更多</span>
+    </button>
+  </nav>
 
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>

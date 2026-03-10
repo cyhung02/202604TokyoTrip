@@ -58,11 +58,10 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Unified nav height calculation for scroll offsets */
-  --nav-height: calc(48px + env(safe-area-inset-top, 0px));
-  --scroll-offset: calc(var(--nav-height) + 20px);
-  /* Sticky day-tabs height (padding + button height) */
+  --nav-height: 0px;
+  --scroll-offset: calc(env(safe-area-inset-top, 0px) + 20px);
   --day-tabs-height: 52px;
+  --bottom-nav-height: 56px;
   scroll-padding-top: var(--scroll-offset);
 }
 
@@ -75,6 +74,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -94,126 +94,79 @@ body {
   }
 }
 
-/* Navigation */
-.nav {
+/* Bottom Navigation */
+.bottom-nav {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(250, 248, 245, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(26, 54, 93, 0.1);
-  transform: translateY(-100%);
-  transition: transform var(--transition-base);
-  /* Fix: push nav content below iPhone status bar / notch in PWA mode */
-  padding-top: env(safe-area-inset-top);
-}
-
-.nav.visible {
-  transform: translateY(0);
-}
-
-.nav-inner {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-md);
-  max-width: 600px;
-  margin: 0 auto;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+  background: rgba(250, 248, 245, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid rgba(26, 54, 93, 0.08);
+  transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
-.nav-toggle {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: var(--spacing-sm);
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 10001;
-  position: relative;
+.bottom-nav.is-hero {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top-color: transparent;
 }
 
-.nav-toggle span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: var(--color-indigo);
-  border-radius: 1px;
-  transition: var(--transition-fast);
-}
-
-.nav-toggle.active span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.nav-toggle.active span:nth-child(2) {
-  opacity: 0;
-}
-
-.nav-toggle.active span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-.nav-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  background-color: #faf8f5;
+.bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xl);
-  list-style: none;
-  z-index: 10000;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.nav-menu.open {
-  pointer-events: auto;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.nav-menu li {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.nav-menu.open li {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.nav-menu.open li:nth-child(1) { transition-delay: 0.05s; }
-.nav-menu.open li:nth-child(2) { transition-delay: 0.1s; }
-.nav-menu.open li:nth-child(3) { transition-delay: 0.15s; }
-.nav-menu.open li:nth-child(4) { transition-delay: 0.2s; }
-.nav-menu.open li:nth-child(5) { transition-delay: 0.25s; }
-.nav-menu.open li:nth-child(6) { transition-delay: 0.3s; }
-
-.nav-menu a {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: var(--color-indigo);
-  text-decoration: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: 2px;
+  flex: 1;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink-muted);
   transition: color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-menu a:hover,
-.nav-menu a:focus {
-  color: var(--color-sakura-dark);
+.bottom-nav-item.active {
+  color: var(--color-indigo);
+}
+
+.bottom-nav.is-hero .bottom-nav-item {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bottom-nav.is-hero .bottom-nav-item.active {
+  color: #fff;
+}
+
+.bottom-nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-label {
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
 /* Hero Section */
@@ -709,8 +662,7 @@ body {
 /* Day Tabs */
 .day-tabs-wrapper {
   position: sticky;
-  /* Fix: account for safe-area-inset-top so tabs don't hide under the nav bar on iPhone PWA */
-  top: calc(48px + env(safe-area-inset-top));
+  top: env(safe-area-inset-top, 0px);
   z-index: 100;
   background: var(--color-washi);
   margin: 0 calc(var(--spacing-md) * -1);
@@ -1366,6 +1318,7 @@ body {
   color: var(--color-washi);
   text-align: center;
   padding: var(--spacing-2xl) var(--spacing-md);
+  padding-bottom: calc(var(--spacing-2xl) + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 .footer-text {
@@ -1389,7 +1342,7 @@ body {
 /* Toast */
 .toast {
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0) + 20px);
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: var(--color-indigo);
@@ -1411,12 +1364,11 @@ body {
 /* Install Prompt */
 .install-prompt {
   position: fixed;
-  bottom: 0;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   background: white;
   padding: var(--spacing-lg);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0) + var(--spacing-lg));
   box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
   display: none;
   align-items: center;

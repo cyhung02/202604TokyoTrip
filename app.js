@@ -9,9 +9,7 @@ marked.use({ breaks: true });
 // DOM Elements
 // ========================================
 
-const nav = document.getElementById('nav');
-const navToggle = document.getElementById('nav-toggle');
-const navMenu = document.getElementById('nav-menu');
+const bottomNav = document.getElementById('bottom-nav');
 const hotelTimeline = document.getElementById('hotel-timeline');
 const dayTabs = document.getElementById('day-tabs');
 const dayContent = document.getElementById('day-content');
@@ -663,10 +661,10 @@ function getTodayDay() {
   return 1;
 }
 
-function scrollToHighlights() {
-  const highlights = document.querySelector('.highlights');
-  if (highlights) {
-    highlights.scrollIntoView({ behavior: 'smooth' });
+function scrollToFirstSection() {
+  const first = document.getElementById('itinerary');
+  if (first) {
+    first.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -871,36 +869,9 @@ function setupScrollAnimations() {
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 }
 
-function setupNavVisibility() {
-  const heroHeight = document.querySelector('.hero').offsetHeight;
-
-  window.addEventListener('scroll', () => {
-    if (window.pageYOffset > heroHeight * 0.5) {
-      nav.classList.add('visible');
-    } else {
-      nav.classList.remove('visible');
-    }
-  });
-}
-
-function updateNavHeightVar() {
-  const navHeight = nav.offsetHeight;
-  document.documentElement.style.setProperty('--nav-actual-height', `${navHeight}px`);
-}
-
-/**
- * Robust scroll positioning - works in both web and PWA modes
- * Uses actual DOM measurements instead of CSS variables
- */
 function scrollToElementWithOffset(element, additionalOffset = 0) {
-  // Get actual nav height from DOM (includes safe-area-inset padding in PWA)
-  const navHeight = nav.offsetHeight;
-  
-  // Calculate absolute position of element in document
   const elementTop = element.getBoundingClientRect().top + window.scrollY;
-  
-  // Calculate target scroll position
-  const targetPosition = elementTop - navHeight - additionalOffset;
+  const targetPosition = elementTop - additionalOffset;
   
   window.scrollTo({
     top: Math.max(0, targetPosition),
@@ -908,26 +879,85 @@ function scrollToElementWithOffset(element, additionalOffset = 0) {
   });
 }
 
-/**
- * Scroll to day content with offset for both nav and sticky tabs
- */
 function scrollToDayContent() {
   const dayHeader = document.querySelector('.day-header');
   if (!dayHeader) return;
   
-  // Get actual heights from DOM
-  const navHeight = nav.offsetHeight;
   const tabsWrapper = document.querySelector('.day-tabs-wrapper');
   const tabsHeight = tabsWrapper ? tabsWrapper.offsetHeight : 0;
+  const stickyTop = tabsWrapper
+    ? parseFloat(getComputedStyle(tabsWrapper).top) || 0
+    : 0;
   const padding = 8;
   
-  // Calculate absolute position
   const elementTop = dayHeader.getBoundingClientRect().top + window.scrollY;
-  const targetPosition = elementTop - navHeight - tabsHeight - padding;
+  const targetPosition = elementTop - stickyTop - tabsHeight - padding;
   
   window.scrollTo({
     top: Math.max(0, targetPosition),
     behavior: 'smooth'
+  });
+}
+
+// ========================================
+// Bottom Navigation
+// ========================================
+
+function setupBottomNav() {
+  const hero = document.getElementById('hero');
+  const sectionIds = ['itinerary', 'hotels', 'weather', 'flights', 'info', 'phrases'];
+  const visibleSections = new Set();
+
+  // Click → scroll to section
+  bottomNav.addEventListener('click', (e) => {
+    const item = e.target.closest('.bottom-nav-item');
+    if (!item) return;
+    
+    const sectionId = item.dataset.section;
+    const targetEl = document.getElementById(sectionId);
+    if (targetEl) {
+      const scrollTarget = targetEl.querySelector('.section-title')
+                        || targetEl.querySelector('.wx-header')
+                        || targetEl;
+      scrollToElementWithOffset(scrollTarget, 24);
+    }
+  });
+
+  // Hero observer → transparent / frosted-glass toggle
+  const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      bottomNav.classList.toggle('is-hero', entry.isIntersecting);
+    });
+  }, { threshold: 0.15 });
+  heroObserver.observe(hero);
+
+  // Section observer → auto-highlight active tab
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        visibleSections.add(entry.target.id);
+      } else {
+        visibleSections.delete(entry.target.id);
+      }
+    });
+
+    for (const id of sectionIds) {
+      if (visibleSections.has(id)) {
+        const tabId = (id === 'phrases') ? 'info' : id;
+        bottomNav.querySelectorAll('.bottom-nav-item').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.section === tabId);
+        });
+        return;
+      }
+    }
+  }, {
+    threshold: 0,
+    rootMargin: '-15% 0px -75% 0px'
+  });
+
+  sectionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
   });
 }
 
@@ -935,34 +965,7 @@ function scrollToDayContent() {
 // Event Listeners
 // ========================================
 
-// Navigation toggle
-navToggle.addEventListener('click', () => {
-  const isOpen = navMenu.classList.toggle('open');
-  navToggle.classList.toggle('active');
-  navToggle.setAttribute('aria-expanded', isOpen);
-});
-
-// Navigation links - robust scroll with DOM-based offset calculation
-navMenu.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    navToggle.classList.remove('active');
-    navMenu.classList.remove('open');
-    
-    const targetId = link.getAttribute('href').substring(1);
-    const targetEl = document.getElementById(targetId);
-    if (targetEl) {
-      // Scroll to section title instead of section itself to avoid padding offset issues
-      // Different sections have different title selectors
-      const scrollTarget = targetEl.querySelector('.section-title') 
-                        || targetEl.querySelector('.wx-header') 
-                        || targetEl;
-      scrollToElementWithOffset(scrollTarget, 16);
-    }
-  });
-});
-
-// Day tabs - robust scroll with DOM-based offset calculation
+// Day tabs
 dayTabs.addEventListener('click', (e) => {
   if (e.target.classList.contains('day-tab')) {
     const day = parseInt(e.target.dataset.day);
@@ -1057,13 +1060,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDayContent(currentDay);
   renderInfoContent(currentInfo);
   renderPhrases();
-  setupNavVisibility();
   setupScrollAnimations();
   setupHeroScroll();
-  
-  // Set nav height CSS variable for scroll-padding-top
-  updateNavHeightVar();
-  window.addEventListener('resize', updateNavHeightVar);
+  setupBottomNav();
   
   // Initialize weather section
   setupWeatherLocationSelector();
@@ -1118,6 +1117,6 @@ function setupHeroScroll() {
   const heroScroll = document.querySelector('.hero-scroll');
   if (heroScroll) {
     heroScroll.style.cursor = 'pointer';
-    heroScroll.addEventListener('click', scrollToHighlights);
+    heroScroll.addEventListener('click', scrollToFirstSection);
   }
 }
