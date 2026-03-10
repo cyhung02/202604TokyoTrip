@@ -949,8 +949,12 @@ navMenu.querySelectorAll('a').forEach(link => {
     const targetId = link.getAttribute('href').substring(1);
     const targetEl = document.getElementById(targetId);
     if (targetEl) {
-      // Use robust scroll function with 16px extra padding
-      scrollToElementWithOffset(targetEl, 16);
+      // Scroll to section title instead of section itself to avoid padding offset issues
+      // Different sections have different title selectors
+      const scrollTarget = targetEl.querySelector('.section-title') 
+                        || targetEl.querySelector('.wx-header') 
+                        || targetEl;
+      scrollToElementWithOffset(scrollTarget, 16);
     }
   });
 });
