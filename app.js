@@ -1437,11 +1437,24 @@ navToggle.addEventListener('click', () => {
   navToggle.setAttribute('aria-expanded', isOpen);
 });
 
-// Navigation links
+// Navigation links - custom scroll with PWA safe area offset
 navMenu.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
     navToggle.classList.remove('active');
     navMenu.classList.remove('open');
+    
+    const targetId = link.getAttribute('href').substring(1);
+    const targetEl = document.getElementById(targetId);
+    if (targetEl) {
+      // Calculate offset: nav bar height (56px) + safe area
+      const navHeight = 56;
+      const safeAreaTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
+      const offset = navHeight + safeAreaTop;
+      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
+      
+      window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+    }
   });
 });
 
