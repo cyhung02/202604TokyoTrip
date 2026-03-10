@@ -31,6 +31,7 @@ let deferredPrompt = null;
 let checkedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
 let customItems = JSON.parse(localStorage.getItem('customItems') || '[]');
 let weatherCache = JSON.parse(localStorage.getItem('weatherCache') || '{}');
+let aiAdviceCache = JSON.parse(localStorage.getItem('aiAdviceCache') || '{}');
 let currentWeatherLocation = 'tokyo';
 let selectedWeatherDate = null;
 let allWeatherData = {};
@@ -493,6 +494,15 @@ function showWeatherError() {
  * Fetch AI weather advice for a specific day
  */
 async function fetchWeatherAIAdvice(dayInput) {
+  const cacheKey = `ai_${dayInput.location_name}_${dayInput.date}`;
+  const cached = aiAdviceCache[cacheKey];
+  const now = Date.now();
+  
+  if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
+    renderWeatherAIAdvice(cached.data, dayInput);
+    return;
+  }
+  
   try {
     const response = await fetch('https://outfit-advisor.cyhung02.workers.dev', {
       method: 'POST',
@@ -503,6 +513,10 @@ async function fetchWeatherAIAdvice(dayInput) {
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     
     const advice = await response.json();
+    
+    aiAdviceCache[cacheKey] = { data: advice, timestamp: now };
+    localStorage.setItem('aiAdviceCache', JSON.stringify(aiAdviceCache));
+    
     renderWeatherAIAdvice(advice, dayInput);
     
   } catch (error) {
