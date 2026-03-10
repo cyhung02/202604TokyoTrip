@@ -2,7 +2,7 @@
 
 const APP_VERSION = '2.4.0';
 const CACHE_NAME = `tokyo-trip-v${APP_VERSION}`;
-const FONT_CACHE = 'tokyo-trip-fonts-v1';
+const FONT_CACHE = 'tokyo-trip-fonts-v2';
 
 const ASSETS = [
   './',
