@@ -53,6 +53,8 @@ const WMO_WEATHER_CODES = {
   51: { icon: '🌦️', desc: '毛毛雨（輕）' },
   53: { icon: '🌦️', desc: '毛毛雨（中）' },
   55: { icon: '🌦️', desc: '毛毛雨（重）' },
+  56: { icon: '🌨️', desc: '凍細雨（輕）' },
+  57: { icon: '🌨️', desc: '凍細雨（重）' },
   61: { icon: '🌧️', desc: '雨（小）' },
   63: { icon: '🌧️', desc: '雨（中）' },
   65: { icon: '🌧️', desc: '雨（大）' },
