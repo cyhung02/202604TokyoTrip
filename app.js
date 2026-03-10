@@ -574,7 +574,7 @@ let allWeatherData = {};
 const WEATHER_LOCATIONS = {
   tokyo:       { lat: 35.6812, lon: 139.7671, name: '東京',       icon: '🗼' },
   kawaguchiko: { lat: 35.5117, lon: 138.7522, name: '河口湖',     icon: '🗻' },
-  hakone:      { lat: 35.2049, lon: 139.0167, name: '箱根蘆之湖', icon: '♨️' }
+  hakone:      { lat: 35.2049, lon: 139.0167, name: '箱根', icon: '♨️' }
 };
 
 // WMO Weather Code mapping (complete spec from API documentation)
@@ -717,14 +717,6 @@ async function initWeatherSection() {
   
   if (!currentCard || !grid) return;
   
-  // Show loading
-  currentCard.innerHTML = `
-    <div class="weather-current-loading">
-      <span class="loading-spinner"></span>
-      <span>載入天氣資料中...</span>
-    </div>
-  `;
-  
   try {
     await loadWeatherData(currentWeatherLocation);
   } catch (error) {
@@ -742,13 +734,8 @@ async function loadWeatherData(locationKey) {
   const location = WEATHER_LOCATIONS[locationKey];
   
   // Show loading
-  currentCard.innerHTML = `
-    <div class="weather-current-loading">
-      <span class="loading-spinner"></span>
-      <span>載入 ${location.name} 天氣中...</span>
-    </div>
-  `;
-  grid.innerHTML = `<div class="weather-loading"><span class="loading-spinner"></span></div>`;
+  currentCard.innerHTML = `<div class="wx-hero-loader"><div class="wx-spinner"></div></div>`;
+  grid.innerHTML = `<div class="wx-days-loader"><div class="wx-spinner"></div></div>`;
   
   // Reset AI section
   resetWeatherAI();
@@ -788,7 +775,7 @@ async function loadWeatherData(locationKey) {
 }
 
 /**
- * Render current weather card
+ * Render current weather card - Bold editorial design
  */
 function renderCurrentWeather(data) {
   const card = document.getElementById('weather-current-card');
@@ -797,41 +784,34 @@ function renderCurrentWeather(data) {
   const current = data.current;
   const weather = getWeatherInfo(current.weather_code);
   const isDay = current.is_day === 1;
+  const temp = Math.round(current.temperature_2m);
+  const feelsLike = Math.round(current.apparent_temperature);
   
   card.innerHTML = `
-    <div class="weather-current-content ${isDay ? 'is-day' : 'is-night'}">
-      <div class="weather-current-main">
-        <div class="weather-current-icon">${weather.icon}</div>
-        <div class="weather-current-temp">
-          <span class="weather-temp-value">${Math.round(current.temperature_2m)}</span>
-          <span class="weather-temp-unit">°C</span>
+    <div class="wx-hero-content" data-theme="${isDay ? 'day' : 'night'}">
+      <div class="wx-hero-bg-text">${weather.icon}</div>
+      <div class="wx-hero-main">
+        <div class="wx-hero-temp">
+          <span class="wx-hero-temp-num">${temp}</span>
+          <span class="wx-hero-temp-unit">°</span>
+        </div>
+        <div class="wx-hero-meta">
+          <div class="wx-hero-location">${data.location_name}</div>
+          <div class="wx-hero-desc">${weather.desc}</div>
         </div>
       </div>
-      <div class="weather-current-details">
-        <div class="weather-current-location">
-          <span class="weather-location-marker">${data.location_icon}</span>
-          <span>${data.location_name}</span>
+      <div class="wx-hero-stats">
+        <div class="wx-stat">
+          <span class="wx-stat-val">${feelsLike}°</span>
+          <span class="wx-stat-lbl">體感</span>
         </div>
-        <div class="weather-current-desc">${weather.desc}</div>
-        <div class="weather-current-feels">
-          體感溫度 ${Math.round(current.apparent_temperature)}°C
+        <div class="wx-stat">
+          <span class="wx-stat-val">${current.relative_humidity_2m}%</span>
+          <span class="wx-stat-lbl">濕度</span>
         </div>
-      </div>
-      <div class="weather-current-stats">
-        <div class="weather-stat">
-          <span class="weather-stat-icon">💧</span>
-          <span class="weather-stat-value">${current.relative_humidity_2m}%</span>
-          <span class="weather-stat-label">濕度</span>
-        </div>
-        <div class="weather-stat">
-          <span class="weather-stat-icon">💨</span>
-          <span class="weather-stat-value">${Math.round(current.wind_speed_10m)}</span>
-          <span class="weather-stat-label">km/h</span>
-        </div>
-        <div class="weather-stat">
-          <span class="weather-stat-icon">🌡️</span>
-          <span class="weather-stat-value">${Math.round(current.precipitation)}</span>
-          <span class="weather-stat-label">mm</span>
+        <div class="wx-stat">
+          <span class="wx-stat-val">${Math.round(current.wind_speed_10m)}</span>
+          <span class="wx-stat-lbl">km/h</span>
         </div>
       </div>
     </div>
@@ -839,58 +819,48 @@ function renderCurrentWeather(data) {
 }
 
 /**
- * Render 7-day forecast grid
+ * Render 7-day forecast - Horizontal strip design
  */
 function render7DayForecast(data, locationKey) {
   const grid = document.getElementById('weather-7day-grid');
   if (!grid || !data.daily) return;
   
   const daily = data.daily;
-  const today = new Date().toISOString().split('T')[0];
+  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
   
   grid.innerHTML = daily.time.map((dateStr, index) => {
     const date = new Date(dateStr);
-    const dayName = index === 0 ? '今天' : 
-                    index === 1 ? '明天' : 
-                    ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
-    const monthDay = `${date.getMonth() + 1}/${date.getDate()}`;
+    const dayChar = jpDays[date.getDay()];
+    const dateNum = date.getDate();
     const weather = getWeatherInfo(daily.weather_code[index]);
     const tempMax = Math.round(daily.temperature_2m_max[index]);
     const tempMin = Math.round(daily.temperature_2m_min[index]);
     const precipProb = daily.precipitation_probability_max[index];
-    const hasRain = precipProb > 30;
-    const hasSnow = daily.snowfall_sum[index] > 0;
     const isSelected = selectedWeatherDate === dateStr;
+    const isToday = index === 0;
     
     return `
-      <div class="weather-7day-card ${hasRain ? 'has-rain' : ''} ${hasSnow ? 'has-snow' : ''} ${isSelected ? 'selected' : ''}"
-           data-date="${dateStr}"
-           data-location="${locationKey}"
-           role="button"
-           tabindex="0">
-        <div class="weather-7day-date">
-          <span class="weather-7day-dayname">${dayName}</span>
-          <span class="weather-7day-monthday">${monthDay}</span>
-        </div>
-        <div class="weather-7day-icon">${weather.icon}</div>
-        <div class="weather-7day-temps">
-          <span class="weather-7day-high">${tempMax}°</span>
-          <span class="weather-7day-low">${tempMin}°</span>
-        </div>
-        ${precipProb > 0 ? `<div class="weather-7day-precip">${precipProb}%</div>` : ''}
-      </div>
+      <button class="wx-day ${isSelected ? 'is-active' : ''} ${isToday ? 'is-today' : ''}"
+              data-date="${dateStr}"
+              data-location="${locationKey}"
+              type="button">
+        <span class="wx-day-date">
+          <em>${dateNum}</em>
+          <small>${dayChar}</small>
+        </span>
+        <span class="wx-day-icon">${weather.icon}</span>
+        <span class="wx-day-temps">
+          <span class="wx-day-hi">${tempMax}</span>
+          <span class="wx-day-lo">${tempMin}</span>
+        </span>
+        ${precipProb > 0 ? `<span class="wx-day-rain">${precipProb}%</span>` : ''}
+      </button>
     `;
   }).join('');
   
   // Add click handlers
-  grid.querySelectorAll('.weather-7day-card').forEach(card => {
+  grid.querySelectorAll('.wx-day').forEach(card => {
     card.addEventListener('click', handleWeather7DayClick);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleWeather7DayClick(e);
-      }
-    });
   });
 }
 
@@ -904,8 +874,8 @@ function handleWeather7DayClick(e) {
   
   // Update selection
   selectedWeatherDate = dateStr;
-  document.querySelectorAll('.weather-7day-card').forEach(c => {
-    c.classList.toggle('selected', c.dataset.date === dateStr);
+  document.querySelectorAll('.wx-day').forEach(c => {
+    c.classList.toggle('is-active', c.dataset.date === dateStr);
   });
   
   // Get data and call AI
@@ -924,14 +894,12 @@ function handleWeather7DayClick(e) {
 function showWeatherError() {
   const currentCard = document.getElementById('weather-current-card');
   const grid = document.getElementById('weather-7day-grid');
-  const location = WEATHER_LOCATIONS[currentWeatherLocation];
   
   if (currentCard) {
     currentCard.innerHTML = `
-      <div class="weather-error">
-        <div class="weather-error-icon">😅</div>
-        <div class="weather-error-text">無法載入天氣資料</div>
-        <button class="weather-retry-btn" onclick="loadWeatherData('${currentWeatherLocation}')">重新載入</button>
+      <div class="wx-error">
+        <p>無法載入天氣</p>
+        <button onclick="loadWeatherData('${currentWeatherLocation}')">重試</button>
       </div>
     `;
   }
@@ -953,25 +921,15 @@ async function fetchWeatherAIAdvice(dayInput) {
   if (!section) return;
   
   const date = new Date(dayInput.date);
-  const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+  const dateNum = date.getDate();
   const weather = getWeatherInfo(dayInput.weather_code);
   
   // Show loading state
   section.innerHTML = `
-    <div class="weather-ai-card loading">
-      <div class="weather-ai-header">
-        <div class="weather-ai-date-badge">
-          <span class="weather-ai-date">${dateStr}</span>
-          <span class="weather-ai-location">${WEATHER_LOCATIONS[currentWeatherLocation].icon} ${dayInput.location_name}</span>
-        </div>
-        <div class="weather-ai-weather-badge">
-          <span>${weather.icon}</span>
-          <span>${Math.round(dayInput.actual_temp_min_c)}°~${Math.round(dayInput.actual_temp_max_c)}°</span>
-        </div>
-      </div>
-      <div class="weather-ai-loading">
-        <span class="loading-spinner"></span>
-        <span>AI 正在分析天氣與穿搭建議...</span>
+    <div class="wx-ai-card is-loading">
+      <div class="wx-ai-loader">
+        <div class="wx-spinner"></div>
+        <span>AI分析中...</span>
       </div>
     </div>
   `;
@@ -997,121 +955,92 @@ async function fetchWeatherAIAdvice(dayInput) {
 }
 
 /**
- * Render AI weather advice
+ * Render AI weather advice - Magazine editorial style
  */
 function renderWeatherAIAdvice(advice, dayInput) {
   const section = document.getElementById('weather-ai-section');
   if (!section) return;
   
   const date = new Date(dayInput.date);
-  const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+  const dateNum = date.getDate();
+  const month = date.getMonth() + 1;
   const weather = getWeatherInfo(dayInput.weather_code);
-  const location = WEATHER_LOCATIONS[currentWeatherLocation];
+  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
+  const dayChar = jpDays[date.getDay()];
   
-  // Build accessories HTML
-  const accessoriesHtml = advice.accessories && advice.accessories.length > 0
-    ? advice.accessories.map(acc => `<span class="weather-ai-accessory">${acc}</span>`).join('')
-    : '<span class="weather-ai-no-accessory">無需額外配件</span>';
+  // Build accessories
+  const accessories = advice.accessories && advice.accessories.length > 0
+    ? advice.accessories.map(a => `<span>${a}</span>`).join('')
+    : '<span>—</span>';
   
-  // Build warning HTML
-  const warningHtml = advice.warning
-    ? `<div class="weather-ai-warning">
-         <span class="weather-ai-warning-icon">⚠️</span>
-         <span>${advice.warning}</span>
-       </div>`
+  // Warning
+  const warning = advice.warning
+    ? `<div class="wx-ai-alert"><span>!</span>${advice.warning}</div>`
     : '';
   
-  // Build weather details
-  const sunriseTime = dayInput.sunrise ? dayInput.sunrise.split('T')[1] : '06:00';
-  const sunsetTime = dayInput.sunset ? dayInput.sunset.split('T')[1] : '18:00';
-  
   section.innerHTML = `
-    <div class="weather-ai-card">
-      <div class="weather-ai-header">
-        <div class="weather-ai-date-badge">
-          <span class="weather-ai-date">${dateStr}</span>
-          <span class="weather-ai-location">${location.icon} ${dayInput.location_name}</span>
+    <article class="wx-ai-card">
+      <header class="wx-ai-head">
+        <div class="wx-ai-date">
+          <span class="wx-ai-date-num">${dateNum}</span>
+          <span class="wx-ai-date-meta">
+            <em>${month}月</em>
+            <em>${dayChar}曜日</em>
+          </span>
         </div>
-        <div class="weather-ai-weather-badge">
-          <span>${weather.icon}</span>
-          <span>${Math.round(dayInput.actual_temp_min_c)}°~${Math.round(dayInput.actual_temp_max_c)}°</span>
+        <div class="wx-ai-condition">
+          <span class="wx-ai-icon">${weather.icon}</span>
+          <span class="wx-ai-temps">${Math.round(dayInput.actual_temp_min_c)}° / ${Math.round(dayInput.actual_temp_max_c)}°</span>
+        </div>
+      </header>
+      
+      <blockquote class="wx-ai-quote">
+        <p>${advice.summary}</p>
+      </blockquote>
+      
+      <div class="wx-ai-metrics">
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
+          <span class="wx-ai-metric-lbl">體感溫度</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${dayInput.precip_probability_pct}%</span>
+          <span class="wx-ai-metric-lbl">降雨機率</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${dayInput.uv_index_max.toFixed(0)}</span>
+          <span class="wx-ai-metric-lbl">UV指數</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${Math.round(dayInput.wind_speed_max_kmh)}</span>
+          <span class="wx-ai-metric-lbl">風速 km/h</span>
         </div>
       </div>
       
-      <div class="weather-ai-summary">
-        <div class="weather-ai-summary-icon">🤖</div>
-        <div class="weather-ai-summary-text">${advice.summary}</div>
-      </div>
+      <section class="wx-ai-outfit">
+        <h3>穿搭建議</h3>
+        <div class="wx-ai-outfit-grid">
+          <div class="wx-ai-outfit-item">
+            <label>上身</label>
+            <p>${advice.top}</p>
+          </div>
+          <div class="wx-ai-outfit-item">
+            <label>下身</label>
+            <p>${advice.bottoms}</p>
+          </div>
+          <div class="wx-ai-outfit-item">
+            <label>鞋類</label>
+            <p>${advice.footwear}</p>
+          </div>
+          <div class="wx-ai-outfit-item wx-ai-outfit-acc">
+            <label>配件</label>
+            <div class="wx-ai-tags">${accessories}</div>
+          </div>
+        </div>
+      </section>
       
-      <div class="weather-ai-details-grid">
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">🌡️</span>
-          <span class="weather-ai-detail-label">體感</span>
-          <span class="weather-ai-detail-value">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
-        </div>
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">💧</span>
-          <span class="weather-ai-detail-label">降雨率</span>
-          <span class="weather-ai-detail-value">${dayInput.precip_probability_pct}%</span>
-        </div>
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">☀️</span>
-          <span class="weather-ai-detail-label">UV</span>
-          <span class="weather-ai-detail-value">${dayInput.uv_index_max.toFixed(1)}</span>
-        </div>
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">💨</span>
-          <span class="weather-ai-detail-label">風速</span>
-          <span class="weather-ai-detail-value">${Math.round(dayInput.wind_speed_max_kmh)} km/h</span>
-        </div>
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">🌅</span>
-          <span class="weather-ai-detail-label">日出</span>
-          <span class="weather-ai-detail-value">${sunriseTime}</span>
-        </div>
-        <div class="weather-ai-detail">
-          <span class="weather-ai-detail-icon">🌇</span>
-          <span class="weather-ai-detail-label">日落</span>
-          <span class="weather-ai-detail-value">${sunsetTime}</span>
-        </div>
-      </div>
-      
-      <div class="weather-ai-outfit-section">
-        <h4 class="weather-ai-outfit-title">👗 穿搭建議</h4>
-        <div class="weather-ai-outfit-grid">
-          <div class="weather-ai-outfit-item">
-            <div class="weather-ai-outfit-icon">👕</div>
-            <div class="weather-ai-outfit-content">
-              <div class="weather-ai-outfit-label">上身</div>
-              <div class="weather-ai-outfit-value">${advice.top}</div>
-            </div>
-          </div>
-          <div class="weather-ai-outfit-item">
-            <div class="weather-ai-outfit-icon">👖</div>
-            <div class="weather-ai-outfit-content">
-              <div class="weather-ai-outfit-label">下身</div>
-              <div class="weather-ai-outfit-value">${advice.bottoms}</div>
-            </div>
-          </div>
-          <div class="weather-ai-outfit-item">
-            <div class="weather-ai-outfit-icon">👟</div>
-            <div class="weather-ai-outfit-content">
-              <div class="weather-ai-outfit-label">鞋類</div>
-              <div class="weather-ai-outfit-value">${advice.footwear}</div>
-            </div>
-          </div>
-          <div class="weather-ai-outfit-item weather-ai-outfit-accessories">
-            <div class="weather-ai-outfit-icon">🎒</div>
-            <div class="weather-ai-outfit-content">
-              <div class="weather-ai-outfit-label">配件</div>
-              <div class="weather-ai-accessories-list">${accessoriesHtml}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      ${warningHtml}
-    </div>
+      ${warning}
+    </article>
   `;
 }
 
@@ -1122,16 +1051,10 @@ function showWeatherAIError(dayInput) {
   const section = document.getElementById('weather-ai-section');
   if (!section) return;
   
-  const date = new Date(dayInput.date);
-  const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
-  
   section.innerHTML = `
-    <div class="weather-ai-card weather-ai-error">
-      <div class="weather-ai-error-content">
-        <span class="weather-ai-error-icon">😅</span>
-        <span class="weather-ai-error-text">無法取得 AI 分析，請稍後再試</span>
-      </div>
-      <button class="weather-ai-retry-btn" onclick="retryWeatherAI()">重新嘗試</button>
+    <div class="wx-ai-error">
+      <p>讀取失敗</p>
+      <button onclick="retryWeatherAI()">重試</button>
     </div>
   `;
 }
@@ -1144,9 +1067,13 @@ function resetWeatherAI() {
   if (!section) return;
   
   section.innerHTML = `
-    <div class="weather-ai-placeholder">
-      <div class="weather-ai-placeholder-icon">👆</div>
-      <div class="weather-ai-placeholder-text">點選上方日期，取得 AI 天氣分析與穿搭建議</div>
+    <div class="wx-ai-empty">
+      <div class="wx-ai-empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+      </div>
+      <p>上の日付を選択して<br/>AI穿搭建議を表示</p>
     </div>
   `;
 }
@@ -1171,14 +1098,14 @@ function setupWeatherLocationSelector() {
   if (!selector) return;
   
   selector.addEventListener('click', (e) => {
-    const btn = e.target.closest('.weather-location-btn');
+    const btn = e.target.closest('.wx-nav-btn');
     if (!btn) return;
     
     const locationKey = btn.dataset.location;
     if (locationKey === currentWeatherLocation) return;
     
     // Update active state
-    selector.querySelectorAll('.weather-location-btn').forEach(b => b.classList.remove('active'));
+    selector.querySelectorAll('.wx-nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
     // Load new location data
