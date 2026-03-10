@@ -2,6 +2,9 @@
 // APP_VERSION is fetched from sw.js to keep version in one place
 // Trip data is loaded from data.js
 
+// Configure marked
+marked.use({ breaks: true });
+
 // ========================================
 // DOM Elements
 // ========================================
@@ -727,7 +730,7 @@ function renderDayContent(day) {
             </a>
           </div>
           ${spot.hours ? `<div class="spot-hours">${spot.hours}</div>` : ''}
-          <div class="spot-desc">${spot.desc}</div>
+          <div class="spot-desc markdown-content">${marked.parse(spot.desc)}</div>
         </div>
       `).join('')}
     </div>
@@ -740,7 +743,7 @@ function renderDayContent(day) {
         ${data.food.map(f => `
           <div class="food-item">
             <span class="food-place">${f.place}</span>
-            <span class="food-name">${f.name}</span>
+            <span class="food-name markdown-content">${marked.parse(f.name)}</span>
           </div>
         `).join('')}
       </div>
@@ -754,7 +757,7 @@ function renderDayContent(day) {
         ${data.transport.map(t => `
           <div class="transport-item">
             <span class="transport-name">${t.name}</span>
-            <span class="transport-desc">${t.desc}</span>
+            <span class="transport-desc markdown-content">${marked.parse(t.desc)}</span>
           </div>
         `).join('')}
       </div>

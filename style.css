@@ -895,6 +895,66 @@ body {
   line-height: 1.6;
 }
 
+/* Markdown Content (rendered by marked.js) */
+.markdown-content p {
+  margin: 0 0 0.5em;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0.4em 0;
+  padding-left: 1.4em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25em;
+  line-height: 1.6;
+}
+
+.markdown-content li::marker {
+  color: var(--color-sakura-dark);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.markdown-content a {
+  color: var(--color-indigo-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-content a:hover {
+  color: var(--color-sakura-dark);
+}
+
+.markdown-content blockquote {
+  margin: 0.5em 0;
+  padding: 0.4em 0.8em;
+  border-left: 3px solid var(--color-gold);
+  background: rgba(214, 158, 46, 0.08);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--color-ink-light);
+  font-size: 0.9em;
+}
+
+.markdown-content blockquote p {
+  margin: 0;
+}
+
+.markdown-content code {
+  background: var(--color-washi-dark);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+}
+
 /* Food & Transport */
 .food-list,
 .transport-list {
@@ -925,6 +985,11 @@ body {
 
 .food-name {
   color: var(--color-ink-light);
+}
+
+.food-name.markdown-content p,
+.transport-desc.markdown-content p {
+  display: inline;
 }
 
 .transport-item {
