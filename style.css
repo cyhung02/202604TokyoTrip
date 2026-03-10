@@ -19,7 +19,7 @@
   --color-ink-light: #4a5568;
   --color-ink-muted: #718096;
   
-  --font-serif: 'Noto Serif JP', serif;
+  --font-serif: 'Noto Serif JP', 'Noto Serif TC', serif;
   --font-sans: 'Noto Sans TC', sans-serif;
   
   --spacing-xs: 0.25rem;
