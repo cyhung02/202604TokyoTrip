@@ -72,7 +72,6 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -307,7 +306,7 @@ body {
 
 /* Sections */
 .section {
-  padding: calc(var(--safe-top) + var(--spacing-3xl)) 0 var(--spacing-3xl);
+  padding: max(var(--safe-top), var(--spacing-2xl)) 0 var(--spacing-2xl);
 }
 
 .section-alt {
@@ -1279,7 +1278,7 @@ body {
   color: var(--color-washi);
   text-align: center;
   padding: var(--spacing-2xl) var(--spacing-md);
-  padding-bottom: calc(var(--spacing-2xl) + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--spacing-md) + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 .footer-text {
@@ -2137,7 +2136,7 @@ body {
 .wx-inner {
   max-width: 600px;
   margin: 0 auto;
-  padding: calc(var(--safe-top) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+  padding: max(var(--safe-top), var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
   position: relative;
 }
 
