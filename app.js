@@ -912,18 +912,7 @@ function setupBottomNav() {
     const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.6)));
 
     const bgAlpha = 0.82 * progress;
-    bottomNav.style.background = progress < 0.02
-      ? 'transparent'
-      : `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
-
-    if (progress > 0.1) {
-      bottomNav.style.backdropFilter = 'saturate(180%) blur(20px)';
-      bottomNav.style.webkitBackdropFilter = 'saturate(180%) blur(20px)';
-    } else {
-      bottomNav.style.backdropFilter = 'none';
-      bottomNav.style.webkitBackdropFilter = 'none';
-    }
-
+    bottomNav.style.background = `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
     bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(0.08 * progress).toFixed(3)})`;
     bottomNav.classList.toggle('is-hero', progress < 0.5);
   }

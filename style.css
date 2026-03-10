@@ -59,10 +59,8 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   --nav-height: 0px;
-  --scroll-offset: calc(env(safe-area-inset-top, 0px) + 24px);
-  --day-tabs-height: 52px;
   --bottom-nav-height: 56px;
-  scroll-padding-top: var(--scroll-offset);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 body {
@@ -261,8 +259,6 @@ body {
   background: var(--color-washi);
   padding: var(--spacing-xl) var(--spacing-md);
   border-bottom: 1px solid var(--color-washi-dark);
-  /* For scrollIntoView to work correctly with fixed nav */
-  scroll-margin-top: var(--scroll-offset);
 }
 
 .highlight-grid {
@@ -311,9 +307,7 @@ body {
 
 /* Sections */
 .section {
-  padding: var(--spacing-3xl) 0;
-  /* For scrollIntoView to work correctly with fixed nav */
-  scroll-margin-top: var(--scroll-offset);
+  padding: calc(var(--safe-top) + var(--spacing-3xl)) 0 var(--spacing-3xl);
 }
 
 .section-alt {
@@ -631,7 +625,7 @@ body {
 /* Day Tabs */
 .day-tabs-wrapper {
   position: sticky;
-  top: env(safe-area-inset-top, 0px);
+  top: var(--safe-top);
   z-index: 100;
   background: var(--color-washi);
   margin: 0 calc(var(--spacing-md) * -1);
@@ -692,8 +686,6 @@ body {
 .day-header {
   text-align: center;
   margin-bottom: var(--spacing-xl);
-  /* For scrollIntoView: offset for fixed nav + sticky day-tabs */
-  scroll-margin-top: calc(var(--scroll-offset) + var(--day-tabs-height));
 }
 
 .day-date {
@@ -2129,8 +2121,6 @@ body {
   padding: 0;
   position: relative;
   overflow: hidden;
-  /* For scrollIntoView to work correctly with fixed nav */
-  scroll-margin-top: var(--scroll-offset);
 }
 
 .wx::before {
@@ -2147,7 +2137,7 @@ body {
 .wx-inner {
   max-width: 600px;
   margin: 0 auto;
-  padding: var(--spacing-2xl) var(--spacing-md);
+  padding: calc(var(--safe-top) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
   position: relative;
 }
 
