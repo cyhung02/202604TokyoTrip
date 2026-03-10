@@ -80,20 +80,18 @@
   </section>
 
   <!-- Weather Section -->
-  <section class="wx" id="weather">
-    <div class="wx-inner">
-      <!-- Header -->
-      <header class="wx-header">
-        <div class="wx-brand">
-          <span class="wx-brand-jp">天気</span>
-          <span class="wx-brand-en">天氣</span>
-        </div>
-        <nav class="wx-nav" id="weather-location-selector">
-          <button class="wx-nav-btn active" data-location="tokyo">東京</button>
-          <button class="wx-nav-btn" data-location="kawaguchiko">河口湖</button>
-          <button class="wx-nav-btn" data-location="hakone">箱根</button>
-        </nav>
-      </header>
+  <section class="section wx" id="weather">
+    <div class="container">
+      <h2 class="section-title">
+        <span class="section-title-jp">天気</span>
+        天氣
+      </h2>
+
+      <nav class="wx-nav" id="weather-location-selector">
+        <button class="wx-nav-btn active" data-location="tokyo">東京</button>
+        <button class="wx-nav-btn" data-location="kawaguchiko">河口湖</button>
+        <button class="wx-nav-btn" data-location="hakone">箱根</button>
+      </nav>
 
       <!-- Hero: Current Weather -->
       <article class="wx-hero" id="weather-current-card">
@@ -111,21 +109,15 @@
         </div>
       </section>
 
-      <!-- AI Advisor -->
-      <section class="wx-ai" id="weather-ai-section">
+      <!-- Detail / AI Advisor -->
+      <section class="wx-detail-section" id="weather-ai-section">
         <div class="wx-ai-empty">
-          <div class="wx-ai-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M12 19V5M5 12l7-7 7 7"/>
-            </svg>
-          </div>
-          <p>點選上方日期<br/>查看詳細天氣與穿搭建議</p>
+          <p>點選日期查看詳細天氣</p>
         </div>
       </section>
 
-      <!-- Footer -->
       <footer class="wx-footer">
-        <span>Open-Meteo / JMA</span>
+        <span>資料來源：Open-Meteo / JMA</span>
       </footer>
     </div>
   </section>
