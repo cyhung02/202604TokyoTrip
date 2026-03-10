@@ -885,6 +885,49 @@ function updateNavHeightVar() {
   document.documentElement.style.setProperty('--nav-actual-height', `${navHeight}px`);
 }
 
+/**
+ * Robust scroll positioning - works in both web and PWA modes
+ * Uses actual DOM measurements instead of CSS variables
+ */
+function scrollToElementWithOffset(element, additionalOffset = 0) {
+  // Get actual nav height from DOM (includes safe-area-inset padding in PWA)
+  const navHeight = nav.offsetHeight;
+  
+  // Calculate absolute position of element in document
+  const elementTop = element.getBoundingClientRect().top + window.scrollY;
+  
+  // Calculate target scroll position
+  const targetPosition = elementTop - navHeight - additionalOffset;
+  
+  window.scrollTo({
+    top: Math.max(0, targetPosition),
+    behavior: 'smooth'
+  });
+}
+
+/**
+ * Scroll to day content with offset for both nav and sticky tabs
+ */
+function scrollToDayContent() {
+  const dayHeader = document.querySelector('.day-header');
+  if (!dayHeader) return;
+  
+  // Get actual heights from DOM
+  const navHeight = nav.offsetHeight;
+  const tabsWrapper = document.querySelector('.day-tabs-wrapper');
+  const tabsHeight = tabsWrapper ? tabsWrapper.offsetHeight : 0;
+  const padding = 8;
+  
+  // Calculate absolute position
+  const elementTop = dayHeader.getBoundingClientRect().top + window.scrollY;
+  const targetPosition = elementTop - navHeight - tabsHeight - padding;
+  
+  window.scrollTo({
+    top: Math.max(0, targetPosition),
+    behavior: 'smooth'
+  });
+}
+
 // ========================================
 // Event Listeners
 // ========================================
@@ -896,7 +939,7 @@ navToggle.addEventListener('click', () => {
   navToggle.setAttribute('aria-expanded', isOpen);
 });
 
-// Navigation links - use scrollIntoView with CSS scroll-margin-top
+// Navigation links - robust scroll with DOM-based offset calculation
 navMenu.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -906,13 +949,13 @@ navMenu.querySelectorAll('a').forEach(link => {
     const targetId = link.getAttribute('href').substring(1);
     const targetEl = document.getElementById(targetId);
     if (targetEl) {
-      // Use scrollIntoView - CSS scroll-margin-top handles the offset
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Use robust scroll function with 16px extra padding
+      scrollToElementWithOffset(targetEl, 16);
     }
   });
 });
 
-// Day tabs - use scrollIntoView with CSS scroll-margin-top
+// Day tabs - robust scroll with DOM-based offset calculation
 dayTabs.addEventListener('click', (e) => {
   if (e.target.classList.contains('day-tab')) {
     const day = parseInt(e.target.dataset.day);
@@ -924,11 +967,7 @@ dayTabs.addEventListener('click', (e) => {
       
       // Use requestAnimationFrame to ensure DOM is updated before scrolling
       requestAnimationFrame(() => {
-        const dayHeader = document.querySelector('.day-header');
-        if (dayHeader) {
-          // scrollIntoView respects CSS scroll-margin-top for proper offset
-          dayHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        scrollToDayContent();
       });
     }
   }
