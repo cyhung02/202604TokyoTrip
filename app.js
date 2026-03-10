@@ -909,7 +909,7 @@ function setupBottomNav() {
   function updateNavTransparency() {
     const heroHeight = hero.offsetHeight;
     const scrollY = window.scrollY;
-    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.6)));
+    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.3)));
 
     const bgAlpha = 0.82 * progress;
     bottomNav.style.background = `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
@@ -1127,4 +1127,3 @@ function updateDayTabsWithDates() {
     }
   });
 }
-
