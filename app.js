@@ -878,6 +878,11 @@ function setupNavVisibility() {
   });
 }
 
+function updateNavHeightVar() {
+  const navHeight = nav.offsetHeight;
+  document.documentElement.style.setProperty('--nav-actual-height', `${navHeight}px`);
+}
+
 // ========================================
 // Event Listeners
 // ========================================
@@ -889,7 +894,7 @@ navToggle.addEventListener('click', () => {
   navToggle.setAttribute('aria-expanded', isOpen);
 });
 
-// Navigation links - custom scroll with PWA safe area offset
+// Navigation links - custom scroll with dynamic nav height offset
 navMenu.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -899,11 +904,10 @@ navMenu.querySelectorAll('a').forEach(link => {
     const targetId = link.getAttribute('href').substring(1);
     const targetEl = document.getElementById(targetId);
     if (targetEl) {
-      // Calculate offset: nav bar height (56px) + safe area
-      const navHeight = 56;
-      const safeAreaTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
-      const offset = navHeight + safeAreaTop;
-      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
+      // Use actual nav element height (includes safe area padding)
+      const navActualHeight = nav.offsetHeight;
+      const extraPadding = 16;
+      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navActualHeight - extraPadding;
       
       window.scrollTo({ top: targetPosition, behavior: 'smooth' });
     }
@@ -921,13 +925,12 @@ dayTabs.addEventListener('click', (e) => {
       renderDayContent(day);
       
       // Scroll to day content with offset for sticky header
-      // Account for safe-area-inset-top on iPhone PWA
       setTimeout(() => {
         const dayHeader = document.querySelector('.day-header');
         if (dayHeader) {
-          const safeAreaTopStr = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top').trim();
-          const safeAreaTop = parseFloat(safeAreaTopStr) || 0;
-          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - 120 - safeAreaTop;
+          const navActualHeight = nav.offsetHeight;
+          const extraPadding = 16;
+          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - navActualHeight - extraPadding;
           window.scrollTo({ top: offsetTop, behavior: 'smooth' });
         }
       }, 50);
@@ -1015,6 +1018,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNavVisibility();
   setupScrollAnimations();
   setupHeroScroll();
+  
+  // Set nav height CSS variable for scroll-padding-top
+  updateNavHeightVar();
+  window.addEventListener('resize', updateNavHeightVar);
   
   // Initialize weather section
   setupWeatherLocationSelector();

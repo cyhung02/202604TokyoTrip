@@ -58,8 +58,9 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Account for fixed nav bar (48px) + safe area in PWA mode */
-  scroll-padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  /* Use JS-set nav height variable with fallback, plus extra padding */
+  --nav-actual-height: calc(48px + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(var(--nav-actual-height) + 16px);
 }
 
 body {
