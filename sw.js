@@ -1,6 +1,6 @@
 // Service Worker for Tokyo Trip PWA
 
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.0';
 const CACHE_NAME = `tokyo-trip-v${APP_VERSION}`;
 const FONT_CACHE = 'tokyo-trip-fonts-v1';
 

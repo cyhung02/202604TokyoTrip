@@ -33,6 +33,7 @@
         <li><a href="#itinerary" data-section="itinerary" id="nav-today">今日行程</a></li>
         <li><a href="#flights" data-section="flights">航班</a></li>
         <li><a href="#hotels" data-section="hotels">住宿</a></li>
+        <li><a href="#weather" data-section="weather">天氣</a></li>
         <li><a href="#info" data-section="info">實用資訊</a></li>
         <li><a href="#phrases" data-section="phrases">日文短句</a></li>
       </ul>
@@ -172,6 +173,64 @@
     </div>
   </section>
 
+  <!-- Weather Section (Independent) -->
+  <section class="section weather-section" id="weather">
+    <div class="container">
+      <h2 class="section-title">
+        <span class="section-title-jp">天気</span>
+        天氣預報
+      </h2>
+
+      <!-- Location Selector -->
+      <div class="weather-location-selector" id="weather-location-selector">
+        <button class="weather-location-btn active" data-location="tokyo">
+          <span class="weather-location-icon">🗼</span>
+          <span class="weather-location-name">東京</span>
+        </button>
+        <button class="weather-location-btn" data-location="kawaguchiko">
+          <span class="weather-location-icon">🗻</span>
+          <span class="weather-location-name">河口湖</span>
+        </button>
+        <button class="weather-location-btn" data-location="hakone">
+          <span class="weather-location-icon">♨️</span>
+          <span class="weather-location-name">箱根蘆之湖</span>
+        </button>
+      </div>
+
+      <!-- Current Weather Card -->
+      <div class="weather-current-card" id="weather-current-card">
+        <div class="weather-current-loading">
+          <span class="loading-spinner"></span>
+          <span>載入天氣資料中...</span>
+        </div>
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="weather-forecast-container">
+        <h3 class="weather-forecast-title">7 日天氣預報</h3>
+        <p class="weather-forecast-subtitle">點選日期查看 AI 穿搭建議</p>
+        <div class="weather-7day-grid" id="weather-7day-grid">
+          <div class="weather-loading">
+            <span class="loading-spinner"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Weather Advisor -->
+      <div class="weather-ai-section" id="weather-ai-section">
+        <div class="weather-ai-placeholder">
+          <div class="weather-ai-placeholder-icon">👆</div>
+          <div class="weather-ai-placeholder-text">點選上方日期，取得 AI 天氣分析與穿搭建議</div>
+        </div>
+      </div>
+
+      <!-- Data Source -->
+      <div class="weather-source">
+        資料來源：Open-Meteo（JMA 日本氣象廳模型）
+      </div>
+    </div>
+  </section>
+
   <!-- Itinerary Section -->
   <section class="section" id="itinerary">
     <div class="container">
@@ -211,8 +270,7 @@
 
       <!-- Info Tabs -->
       <div class="info-tabs" id="info-tabs">
-        <button class="info-tab active" data-info="weather">天氣服裝</button>
-        <button class="info-tab" data-info="sakura">櫻花前線</button>
+        <button class="info-tab active" data-info="sakura">櫻花前線</button>
         <button class="info-tab" data-info="packing">行李清單</button>
         <button class="info-tab" data-info="apps">推薦 App</button>
         <button class="info-tab" data-info="etiquette">旅遊禮儀</button>
