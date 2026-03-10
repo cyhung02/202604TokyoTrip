@@ -58,9 +58,12 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Use JS-set nav height variable with fallback, plus extra padding */
-  --nav-actual-height: calc(48px + env(safe-area-inset-top, 0px));
-  scroll-padding-top: calc(var(--nav-actual-height) + 16px);
+  /* Unified nav height calculation for scroll offsets */
+  --nav-height: calc(48px + env(safe-area-inset-top, 0px));
+  --scroll-offset: calc(var(--nav-height) + 20px);
+  /* Sticky day-tabs height (padding + button height) */
+  --day-tabs-height: 52px;
+  scroll-padding-top: var(--scroll-offset);
 }
 
 body {
@@ -335,6 +338,8 @@ body {
   background: var(--color-washi);
   padding: var(--spacing-xl) var(--spacing-md);
   border-bottom: 1px solid var(--color-washi-dark);
+  /* For scrollIntoView to work correctly with fixed nav */
+  scroll-margin-top: var(--scroll-offset);
 }
 
 .highlight-grid {
@@ -384,6 +389,8 @@ body {
 /* Sections */
 .section {
   padding: var(--spacing-3xl) 0;
+  /* For scrollIntoView to work correctly with fixed nav */
+  scroll-margin-top: var(--scroll-offset);
 }
 
 .section-alt {
@@ -763,6 +770,8 @@ body {
 .day-header {
   text-align: center;
   margin-bottom: var(--spacing-xl);
+  /* For scrollIntoView: offset for fixed nav + sticky day-tabs */
+  scroll-margin-top: calc(var(--scroll-offset) + var(--day-tabs-height));
 }
 
 .day-date {
@@ -2133,6 +2142,8 @@ body {
   padding: 0;
   position: relative;
   overflow: hidden;
+  /* For scrollIntoView to work correctly with fixed nav */
+  scroll-margin-top: var(--scroll-offset);
 }
 
 .wx::before {

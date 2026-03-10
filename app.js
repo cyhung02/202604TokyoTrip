@@ -896,7 +896,7 @@ navToggle.addEventListener('click', () => {
   navToggle.setAttribute('aria-expanded', isOpen);
 });
 
-// Navigation links - custom scroll with dynamic nav height offset
+// Navigation links - use scrollIntoView with CSS scroll-margin-top
 navMenu.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -906,17 +906,13 @@ navMenu.querySelectorAll('a').forEach(link => {
     const targetId = link.getAttribute('href').substring(1);
     const targetEl = document.getElementById(targetId);
     if (targetEl) {
-      // Use actual nav element height (includes safe area padding)
-      const navActualHeight = nav.offsetHeight;
-      const extraPadding = 16;
-      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navActualHeight - extraPadding;
-      
-      window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+      // Use scrollIntoView - CSS scroll-margin-top handles the offset
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 });
 
-// Day tabs
+// Day tabs - use scrollIntoView with CSS scroll-margin-top
 dayTabs.addEventListener('click', (e) => {
   if (e.target.classList.contains('day-tab')) {
     const day = parseInt(e.target.dataset.day);
@@ -926,16 +922,14 @@ dayTabs.addEventListener('click', (e) => {
       e.target.classList.add('active');
       renderDayContent(day);
       
-      // Scroll to day content with offset for sticky header
-      setTimeout(() => {
+      // Use requestAnimationFrame to ensure DOM is updated before scrolling
+      requestAnimationFrame(() => {
         const dayHeader = document.querySelector('.day-header');
         if (dayHeader) {
-          const navActualHeight = nav.offsetHeight;
-          const extraPadding = 16;
-          const offsetTop = dayHeader.getBoundingClientRect().top + window.pageYOffset - navActualHeight - extraPadding;
-          window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+          // scrollIntoView respects CSS scroll-margin-top for proper offset
+          dayHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 50);
+      });
     }
   }
 });
