@@ -1073,10 +1073,29 @@ document.addEventListener('DOMContentLoaded', () => {
     window.speechSynthesis.getVoices();
   }
   
-  // Register Service Worker and update footer version from sw.js
+  // Register Service Worker — auto-reload on new version
   if ('serviceWorker' in navigator) {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker registered'))
+      .then(reg => {
+        console.log('Service Worker registered');
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          if (newSW) {
+            newSW.addEventListener('statechange', () => {
+              if (newSW.state === 'activated') {
+                console.log('New Service Worker activated');
+              }
+            });
+          }
+        });
+      })
       .catch(err => console.log('Service Worker registration failed', err));
   }
   
