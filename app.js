@@ -107,7 +107,7 @@ async function fetchWeatherForLocation(locationKey) {
     longitude: location.lon,
     models: 'best_match',
     timezone: 'Asia/Tokyo',
-    temporal_resolution: 'hourly_6',
+    temporal_resolution: 'hourly_3',
     current: 'temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,precipitation,is_day',
     hourly: 'temperature_2m,apparent_temperature,precipitation_probability,freezing_level_height,is_day',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,snowfall_sum,uv_index_max,wind_speed_10m_max,wind_gusts_10m_max,relative_humidity_2m_mean,vapour_pressure_deficit_max,wet_bulb_temperature_2m_mean'
@@ -263,28 +263,32 @@ function renderCurrentWeather(data) {
   card.innerHTML = `
     <div class="wx-hero-content" data-theme="${isDay ? 'day' : 'night'}">
       <div class="wx-hero-bg-text">${weather.icon}</div>
-      <div class="wx-hero-main">
+      <div class="wx-hero-top">
+        <div class="wx-hero-location">${data.location_name}</div>
+        <div class="wx-hero-desc">${weather.icon} ${weather.desc}</div>
+      </div>
+      <div class="wx-hero-center">
         <div class="wx-hero-temp">
           <span class="wx-hero-temp-num">${temp}</span>
           <span class="wx-hero-temp-unit">°</span>
-        </div>
-        <div class="wx-hero-meta">
-          <div class="wx-hero-location">${data.location_name}</div>
-          <div class="wx-hero-desc">${weather.desc}</div>
         </div>
       </div>
       <div class="wx-hero-stats">
         <div class="wx-stat">
           <span class="wx-stat-val">${feelsLike}°</span>
-          <span class="wx-stat-lbl">體感</span>
+          <span class="wx-stat-lbl">體感溫度</span>
         </div>
         <div class="wx-stat">
           <span class="wx-stat-val">${current.relative_humidity_2m}%</span>
           <span class="wx-stat-lbl">濕度</span>
         </div>
         <div class="wx-stat">
-          <span class="wx-stat-val">${Math.round(current.wind_speed_10m)}</span>
-          <span class="wx-stat-lbl">km/h</span>
+          <span class="wx-stat-val">${Math.round(current.wind_speed_10m)} <small>km/h</small></span>
+          <span class="wx-stat-lbl">風速</span>
+        </div>
+        <div class="wx-stat">
+          <span class="wx-stat-val">${Math.round(current.wind_gusts_10m)} <small>km/h</small></span>
+          <span class="wx-stat-lbl">陣風</span>
         </div>
       </div>
     </div>
@@ -400,68 +404,72 @@ function renderWeatherDetail(dayInput) {
     : '';
   
   section.innerHTML = `
-    <article class="wx-ai-card">
-      <header class="wx-ai-head">
-        <div class="wx-ai-date">
-          <span class="wx-ai-date-num">${dateNum}</span>
-          <span class="wx-ai-date-meta">
+    <div class="wx-detail">
+      <header class="wx-detail-head">
+        <div class="wx-detail-date">
+          <span class="wx-detail-date-num">${dateNum}</span>
+          <span class="wx-detail-date-meta">
             <em>${month}月</em>
             <em>${dayChar}曜日</em>
           </span>
         </div>
-        <div class="wx-ai-condition">
-          <span class="wx-ai-icon">${weather.icon}</span>
-          <span class="wx-ai-temps">${Math.round(dayInput.actual_temp_min_c)}° / ${Math.round(dayInput.actual_temp_max_c)}°</span>
+        <div class="wx-detail-condition">
+          <span class="wx-detail-icon">${weather.icon}</span>
+          <span class="wx-detail-temps">${Math.round(dayInput.actual_temp_min_c)}° / ${Math.round(dayInput.actual_temp_max_c)}°</span>
         </div>
       </header>
       
-      <blockquote class="wx-ai-quote" id="wx-ai-summary">
+      <blockquote class="wx-detail-quote" id="wx-ai-summary">
         <div class="wx-ai-inline-loader"><div class="wx-spinner"></div><span>AI分析中...</span></div>
       </blockquote>
       
-      <div class="wx-ai-metrics">
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
-          <span class="wx-ai-metric-lbl">體感溫度</span>
+      <div class="wx-detail-metrics">
+        <div class="wx-detail-metric-item">
+          <span class="wx-detail-metric-val">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
+          <span class="wx-detail-metric-lbl">體感溫度</span>
         </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${dayInput.precip_probability_pct}%</span>
-          <span class="wx-ai-metric-lbl">降雨機率</span>
+        <div class="wx-detail-metric-item">
+          <span class="wx-detail-metric-val">${dayInput.precip_probability_pct}%</span>
+          <span class="wx-detail-metric-lbl">降雨機率</span>
         </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${dayInput.uv_index_max.toFixed(0)}</span>
-          <span class="wx-ai-metric-lbl">UV指數</span>
+        <div class="wx-detail-metric-item">
+          <span class="wx-detail-metric-val">${dayInput.uv_index_max.toFixed(0)}</span>
+          <span class="wx-detail-metric-lbl">UV 指數</span>
         </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${Math.round(dayInput.wind_speed_max_kmh)}</span>
-          <span class="wx-ai-metric-lbl">風速 km/h</span>
+        <div class="wx-detail-metric-item">
+          <span class="wx-detail-metric-val">${Math.round(dayInput.wind_speed_max_kmh)} <small>km/h</small></span>
+          <span class="wx-detail-metric-lbl">風速</span>
         </div>
       </div>
       
       ${hourlyHtml ? `
-      <div class="wx-ai-hourly">
-        <div class="wx-ai-hourly-title">六小時預報</div>
-        <div class="wx-ai-hourly-grid">${hourlyHtml}</div>
+      <div class="wx-detail-hourly">
+        <div class="wx-detail-hourly-label">每三小時預報</div>
+        <div class="wx-detail-hourly-grid">${hourlyHtml}</div>
       </div>` : ''}
       
-      <div class="wx-ai-sun">
-        <div class="wx-ai-sun-item">
-          <span class="wx-ai-sun-icon">🌅</span>
-          <span class="wx-ai-sun-time">${sunrise}</span>
-          <span class="wx-ai-sun-label">日出</span>
+      <div class="wx-detail-sun">
+        <div class="wx-detail-sun-item">
+          <span class="wx-detail-sun-icon">🌅</span>
+          <div class="wx-detail-sun-text">
+            <span class="wx-detail-sun-time">${sunrise}</span>
+            <span class="wx-detail-sun-label">日出</span>
+          </div>
         </div>
-        <div class="wx-ai-sun-item">
-          <span class="wx-ai-sun-icon">🌇</span>
-          <span class="wx-ai-sun-time">${sunset}</span>
-          <span class="wx-ai-sun-label">日落</span>
+        <div class="wx-detail-sun-item">
+          <span class="wx-detail-sun-icon">🌇</span>
+          <div class="wx-detail-sun-text">
+            <span class="wx-detail-sun-time">${sunset}</span>
+            <span class="wx-detail-sun-label">日落</span>
+          </div>
         </div>
       </div>
       
-      <section class="wx-ai-outfit" id="wx-ai-outfit">
+      <section class="wx-detail-outfit" id="wx-ai-outfit">
         <h3>穿搭建議</h3>
         <div class="wx-ai-inline-loader"><div class="wx-spinner"></div><span>AI分析中...</span></div>
       </section>
-    </article>
+    </div>
   `;
 }
 
@@ -542,29 +550,29 @@ function renderWeatherAIAdvice(advice, dayInput) {
     
     outfitEl.innerHTML = `
       <h3>穿搭建議</h3>
-      <div class="wx-ai-outfit-grid">
-        <div class="wx-ai-outfit-item">
+      <div class="wx-detail-outfit-grid">
+        <div class="wx-detail-outfit-item">
           <label>上身</label>
           <p>${advice.top}</p>
         </div>
-        <div class="wx-ai-outfit-item">
+        <div class="wx-detail-outfit-item">
           <label>下身</label>
           <p>${advice.bottoms}</p>
         </div>
-        <div class="wx-ai-outfit-item">
+        <div class="wx-detail-outfit-item">
           <label>鞋類</label>
           <p>${advice.footwear}</p>
         </div>
-        <div class="wx-ai-outfit-item wx-ai-outfit-acc">
+        <div class="wx-detail-outfit-item wx-detail-outfit-acc">
           <label>配件</label>
-          <div class="wx-ai-tags">${accessories}</div>
+          <div class="wx-detail-tags">${accessories}</div>
         </div>
       </div>
     `;
     
     if (advice.warning) {
       const warningEl = document.createElement('div');
-      warningEl.className = 'wx-ai-alert';
+      warningEl.className = 'wx-detail-alert';
       warningEl.innerHTML = `<span>!</span>${advice.warning}`;
       outfitEl.after(warningEl);
     }
@@ -606,7 +614,7 @@ function resetWeatherAI() {
           <path d="M12 19V5M5 12l7-7 7 7"/>
         </svg>
       </div>
-      <p>點選上方日期<br/>查看 AI 穿搭建議</p>
+      <p>點選上方日期<br/>查看詳細天氣與穿搭建議</p>
     </div>
   `;
 }
