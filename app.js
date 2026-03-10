@@ -201,40 +201,44 @@ async function loadWeatherData(locationKey) {
   const grid = document.getElementById('weather-7day-grid');
   const location = WEATHER_LOCATIONS[locationKey];
   
-  // Show loading
   currentCard.innerHTML = `<div class="wx-hero-loader"><div class="wx-spinner"></div></div>`;
   grid.innerHTML = `<div class="wx-days-loader"><div class="wx-spinner"></div></div>`;
   
-  // Reset AI section
   resetWeatherAI();
   selectedWeatherDate = null;
   
   try {
-    // Check cache first (valid for 15 minutes)
+    let data;
     const cacheKey = `weather_${locationKey}`;
     const cached = weatherCache[cacheKey];
     const now = Date.now();
     
     if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
-      allWeatherData[locationKey] = cached.data;
-      renderCurrentWeather(cached.data);
-      render7DayForecast(cached.data, locationKey);
-      return;
+      data = cached.data;
+    } else {
+      data = await fetchWeatherForLocation(locationKey);
+      weatherCache[cacheKey] = { data, timestamp: now };
+      localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
     }
-    
-    // Fetch fresh data
-    const data = await fetchWeatherForLocation(locationKey);
-    
-    // Cache it
-    weatherCache[cacheKey] = {
-      data: data,
-      timestamp: now
-    };
-    localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
     
     allWeatherData[locationKey] = data;
     renderCurrentWeather(data);
     render7DayForecast(data, locationKey);
+    
+    // Auto-select today
+    if (data.daily && data.daily.time.length > 0) {
+      const todayStr = data.daily.time[0];
+      selectedWeatherDate = todayStr;
+      
+      const todayBtn = document.querySelector('.wx-day.is-today');
+      if (todayBtn) todayBtn.classList.add('is-active');
+      
+      const dayInput = buildDailyAIInput(data, todayStr);
+      if (dayInput) {
+        renderWeatherDetail(dayInput);
+        fetchWeatherAIAdvice(dayInput);
+      }
+    }
     
   } catch (error) {
     console.error('Weather load error:', error);
@@ -340,20 +344,124 @@ function handleWeather7DayClick(e) {
   const dateStr = card.dataset.date;
   const locationKey = card.dataset.location;
   
-  // Update selection
   selectedWeatherDate = dateStr;
   document.querySelectorAll('.wx-day').forEach(c => {
     c.classList.toggle('is-active', c.dataset.date === dateStr);
   });
   
-  // Get data and call AI
   const rawData = allWeatherData[locationKey];
   if (!rawData) return;
   
   const dayInput = buildDailyAIInput(rawData, dateStr);
   if (dayInput) {
+    renderWeatherDetail(dayInput);
     fetchWeatherAIAdvice(dayInput);
   }
+}
+
+/**
+ * Render weather detail card immediately with available data
+ */
+function renderWeatherDetail(dayInput) {
+  const section = document.getElementById('weather-ai-section');
+  if (!section) return;
+  
+  const date = new Date(dayInput.date);
+  const dateNum = date.getDate();
+  const month = date.getMonth() + 1;
+  const weather = getWeatherInfo(dayInput.weather_code);
+  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
+  const dayChar = jpDays[date.getDay()];
+  
+  const sunrise = dayInput.sunrise
+    ? new Date(dayInput.sunrise).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false })
+    : '--:--';
+  const sunset = dayInput.sunset
+    ? new Date(dayInput.sunset).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false })
+    : '--:--';
+  
+  const hourlyHtml = dayInput.hourly_forecast && dayInput.hourly_forecast.length > 0
+    ? dayInput.hourly_forecast.map(h => {
+        const time = new Date(h.time);
+        const hourStr = time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const precipPct = h.precip_probability_pct || 0;
+        const barHeight = Math.max(2, precipPct * 0.4);
+        return `
+          <div class="wx-ai-hourly-item">
+            <span class="wx-ai-hourly-time">${hourStr}</span>
+            <span class="wx-ai-hourly-temp">${Math.round(h.temperature_c)}°</span>
+            <div class="wx-ai-hourly-bar-wrap">
+              <div class="wx-ai-hourly-bar" style="height:${barHeight}px"></div>
+            </div>
+            <span class="wx-ai-hourly-precip">${precipPct}%</span>
+          </div>`;
+      }).join('')
+    : '';
+  
+  section.innerHTML = `
+    <article class="wx-ai-card">
+      <header class="wx-ai-head">
+        <div class="wx-ai-date">
+          <span class="wx-ai-date-num">${dateNum}</span>
+          <span class="wx-ai-date-meta">
+            <em>${month}月</em>
+            <em>${dayChar}曜日</em>
+          </span>
+        </div>
+        <div class="wx-ai-condition">
+          <span class="wx-ai-icon">${weather.icon}</span>
+          <span class="wx-ai-temps">${Math.round(dayInput.actual_temp_min_c)}° / ${Math.round(dayInput.actual_temp_max_c)}°</span>
+        </div>
+      </header>
+      
+      <blockquote class="wx-ai-quote" id="wx-ai-summary">
+        <div class="wx-ai-inline-loader"><div class="wx-spinner"></div><span>AI分析中...</span></div>
+      </blockquote>
+      
+      <div class="wx-ai-metrics">
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
+          <span class="wx-ai-metric-lbl">體感溫度</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${dayInput.precip_probability_pct}%</span>
+          <span class="wx-ai-metric-lbl">降雨機率</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${dayInput.uv_index_max.toFixed(0)}</span>
+          <span class="wx-ai-metric-lbl">UV指數</span>
+        </div>
+        <div class="wx-ai-metric">
+          <span class="wx-ai-metric-val">${Math.round(dayInput.wind_speed_max_kmh)}</span>
+          <span class="wx-ai-metric-lbl">風速 km/h</span>
+        </div>
+      </div>
+      
+      ${hourlyHtml ? `
+      <div class="wx-ai-hourly">
+        <div class="wx-ai-hourly-title">六小時預報</div>
+        <div class="wx-ai-hourly-grid">${hourlyHtml}</div>
+      </div>` : ''}
+      
+      <div class="wx-ai-sun">
+        <div class="wx-ai-sun-item">
+          <span class="wx-ai-sun-icon">🌅</span>
+          <span class="wx-ai-sun-time">${sunrise}</span>
+          <span class="wx-ai-sun-label">日出</span>
+        </div>
+        <div class="wx-ai-sun-item">
+          <span class="wx-ai-sun-icon">🌇</span>
+          <span class="wx-ai-sun-time">${sunset}</span>
+          <span class="wx-ai-sun-label">日落</span>
+        </div>
+      </div>
+      
+      <section class="wx-ai-outfit" id="wx-ai-outfit">
+        <h3>穿搭建議</h3>
+        <div class="wx-ai-inline-loader"><div class="wx-spinner"></div><span>AI分析中...</span></div>
+      </section>
+    </article>
+  `;
 }
 
 /**
@@ -385,23 +493,6 @@ function showWeatherError() {
  * Fetch AI weather advice for a specific day
  */
 async function fetchWeatherAIAdvice(dayInput) {
-  const section = document.getElementById('weather-ai-section');
-  if (!section) return;
-  
-  const date = new Date(dayInput.date);
-  const dateNum = date.getDate();
-  const weather = getWeatherInfo(dayInput.weather_code);
-  
-  // Show loading state
-  section.innerHTML = `
-    <div class="wx-ai-card is-loading">
-      <div class="wx-ai-loader">
-        <div class="wx-spinner"></div>
-        <span>AI分析中...</span>
-      </div>
-    </div>
-  `;
-  
   try {
     const response = await fetch('https://outfit-advisor.cyhung02.workers.dev', {
       method: 'POST',
@@ -409,9 +500,7 @@ async function fetchWeatherAIAdvice(dayInput) {
       body: JSON.stringify({ weather_data: dayInput })
     });
     
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
     
     const advice = await response.json();
     renderWeatherAIAdvice(advice, dayInput);
@@ -423,108 +512,70 @@ async function fetchWeatherAIAdvice(dayInput) {
 }
 
 /**
- * Render AI weather advice - Magazine editorial style
+ * Update AI-driven parts of the detail card (summary + outfit)
  */
 function renderWeatherAIAdvice(advice, dayInput) {
-  const section = document.getElementById('weather-ai-section');
-  if (!section) return;
+  const summaryEl = document.getElementById('wx-ai-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = `<p>${advice.summary}</p>`;
+  }
   
-  const date = new Date(dayInput.date);
-  const dateNum = date.getDate();
-  const month = date.getMonth() + 1;
-  const weather = getWeatherInfo(dayInput.weather_code);
-  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
-  const dayChar = jpDays[date.getDay()];
-  
-  // Build accessories
-  const accessories = advice.accessories && advice.accessories.length > 0
-    ? advice.accessories.map(a => `<span>${a}</span>`).join('')
-    : '<span>—</span>';
-  
-  // Warning
-  const warning = advice.warning
-    ? `<div class="wx-ai-alert"><span>!</span>${advice.warning}</div>`
-    : '';
-  
-  section.innerHTML = `
-    <article class="wx-ai-card">
-      <header class="wx-ai-head">
-        <div class="wx-ai-date">
-          <span class="wx-ai-date-num">${dateNum}</span>
-          <span class="wx-ai-date-meta">
-            <em>${month}月</em>
-            <em>${dayChar}曜日</em>
-          </span>
+  const outfitEl = document.getElementById('wx-ai-outfit');
+  if (outfitEl) {
+    const accessories = advice.accessories && advice.accessories.length > 0
+      ? advice.accessories.map(a => `<span>${a}</span>`).join('')
+      : '<span>—</span>';
+    
+    outfitEl.innerHTML = `
+      <h3>穿搭建議</h3>
+      <div class="wx-ai-outfit-grid">
+        <div class="wx-ai-outfit-item">
+          <label>上身</label>
+          <p>${advice.top}</p>
         </div>
-        <div class="wx-ai-condition">
-          <span class="wx-ai-icon">${weather.icon}</span>
-          <span class="wx-ai-temps">${Math.round(dayInput.actual_temp_min_c)}° / ${Math.round(dayInput.actual_temp_max_c)}°</span>
+        <div class="wx-ai-outfit-item">
+          <label>下身</label>
+          <p>${advice.bottoms}</p>
         </div>
-      </header>
-      
-      <blockquote class="wx-ai-quote">
-        <p>${advice.summary}</p>
-      </blockquote>
-      
-      <div class="wx-ai-metrics">
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${Math.round(dayInput.apparent_temp_min_c)}°~${Math.round(dayInput.apparent_temp_max_c)}°</span>
-          <span class="wx-ai-metric-lbl">體感溫度</span>
+        <div class="wx-ai-outfit-item">
+          <label>鞋類</label>
+          <p>${advice.footwear}</p>
         </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${dayInput.precip_probability_pct}%</span>
-          <span class="wx-ai-metric-lbl">降雨機率</span>
-        </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${dayInput.uv_index_max.toFixed(0)}</span>
-          <span class="wx-ai-metric-lbl">UV指數</span>
-        </div>
-        <div class="wx-ai-metric">
-          <span class="wx-ai-metric-val">${Math.round(dayInput.wind_speed_max_kmh)}</span>
-          <span class="wx-ai-metric-lbl">風速 km/h</span>
+        <div class="wx-ai-outfit-item wx-ai-outfit-acc">
+          <label>配件</label>
+          <div class="wx-ai-tags">${accessories}</div>
         </div>
       </div>
-      
-      <section class="wx-ai-outfit">
-        <h3>穿搭建議</h3>
-        <div class="wx-ai-outfit-grid">
-          <div class="wx-ai-outfit-item">
-            <label>上身</label>
-            <p>${advice.top}</p>
-          </div>
-          <div class="wx-ai-outfit-item">
-            <label>下身</label>
-            <p>${advice.bottoms}</p>
-          </div>
-          <div class="wx-ai-outfit-item">
-            <label>鞋類</label>
-            <p>${advice.footwear}</p>
-          </div>
-          <div class="wx-ai-outfit-item wx-ai-outfit-acc">
-            <label>配件</label>
-            <div class="wx-ai-tags">${accessories}</div>
-          </div>
-        </div>
-      </section>
-      
-      ${warning}
-    </article>
-  `;
+    `;
+    
+    if (advice.warning) {
+      const warningEl = document.createElement('div');
+      warningEl.className = 'wx-ai-alert';
+      warningEl.innerHTML = `<span>!</span>${advice.warning}`;
+      outfitEl.after(warningEl);
+    }
+  }
 }
 
 /**
  * Show AI error state
  */
 function showWeatherAIError(dayInput) {
-  const section = document.getElementById('weather-ai-section');
-  if (!section) return;
+  const summaryEl = document.getElementById('wx-ai-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = `<p style="color:var(--color-ink-muted)">天氣概述載入失敗</p>`;
+  }
   
-  section.innerHTML = `
-    <div class="wx-ai-error">
-      <p>讀取失敗</p>
-      <button onclick="retryWeatherAI()">重試</button>
-    </div>
-  `;
+  const outfitEl = document.getElementById('wx-ai-outfit');
+  if (outfitEl) {
+    outfitEl.innerHTML = `
+      <h3>穿搭建議</h3>
+      <div class="wx-ai-error">
+        <p>讀取失敗</p>
+        <button onclick="retryWeatherAI()">重試</button>
+      </div>
+    `;
+  }
 }
 
 /**
@@ -909,7 +960,7 @@ function setupBottomNav() {
   function updateNavTransparency() {
     const heroHeight = hero.offsetHeight;
     const scrollY = window.scrollY;
-    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.3)));
+    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.15)));
 
     const bgAlpha = 0.82 * progress;
     bottomNav.style.background = `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
