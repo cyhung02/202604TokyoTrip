@@ -2592,10 +2592,11 @@ body {
   color: #0a0a0a;
 }
 
-/* AI Card - Editorial Magazine Style */
+/* AI Card - Editorial Magazine Style (Dark Theme) */
 .wx-ai-card {
-  background: #faf8f5;
-  border-radius: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   padding: var(--spacing-lg);
   animation: wx-card-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2616,7 +2617,7 @@ body {
   align-items: flex-start;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid #0a0a0a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .wx-ai-date {
@@ -2630,7 +2631,7 @@ body {
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1;
-  color: #0a0a0a;
+  color: #faf8f5;
 }
 
 .wx-ai-date-meta {
@@ -2643,7 +2644,7 @@ body {
   font-style: normal;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-ink-muted);
+  color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.05em;
 }
 
@@ -2662,7 +2663,7 @@ body {
   font-family: var(--font-serif);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-ink-muted);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* AI Quote/Summary */
@@ -2670,19 +2671,14 @@ body {
   position: relative;
   margin: 0 0 var(--spacing-lg);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: #0a0a0a;
+  background: linear-gradient(135deg, rgba(248, 180, 180, 0.12) 0%, rgba(248, 180, 180, 0.04) 100%);
+  border-left: 3px solid var(--color-sakura);
   color: #faf8f5;
 }
 
 .wx-ai-quote::before {
-  content: '"';
-  position: absolute;
-  top: -8px;
-  left: 12px;
-  font-family: var(--font-serif);
-  font-size: 3rem;
-  color: var(--color-sakura);
-  line-height: 1;
+  content: '';
+  display: none;
 }
 
 .wx-ai-quote p {
@@ -2694,9 +2690,11 @@ body {
 /* AI Metrics */
 .wx-ai-metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
   margin-bottom: var(--spacing-lg);
 }
 
@@ -2706,14 +2704,14 @@ body {
   align-items: center;
   gap: 4px;
   padding: var(--spacing-md) var(--spacing-sm);
-  background: #faf8f5;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .wx-ai-metric-val {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   font-weight: 700;
-  color: #0a0a0a;
+  color: #faf8f5;
 }
 
 .wx-ai-metric-lbl {
@@ -2721,14 +2719,15 @@ body {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-ink-muted);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* AI Outfit Section */
 .wx-ai-outfit {
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(248, 180, 180, 0.08) 0%, rgba(248, 180, 180, 0.02) 100%);
+  background: rgba(248, 180, 180, 0.08);
   border-left: 3px solid var(--color-sakura);
+  border-radius: 0 8px 8px 0;
   margin-bottom: var(--spacing-md);
 }
 
@@ -2738,7 +2737,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--color-sakura-dark);
+  color: var(--color-sakura);
   margin: 0 0 var(--spacing-md);
 }
 
@@ -2759,12 +2758,12 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-ink-muted);
+  color: var(--color-sakura-light);
 }
 
 .wx-ai-outfit-item p {
   font-size: 0.875rem;
-  color: #0a0a0a;
+  color: #faf8f5;
   margin: 0;
   line-height: 1.5;
 }
@@ -2781,11 +2780,12 @@ body {
 
 .wx-ai-tags span {
   padding: 4px 12px;
-  background: #0a0a0a;
+  background: rgba(255, 255, 255, 0.1);
   color: #faf8f5;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: 2px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* AI Alert/Warning */
@@ -2794,10 +2794,11 @@ body {
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: var(--color-gold-light);
+  background: rgba(214, 158, 46, 0.15);
   border-left: 3px solid var(--color-gold);
+  border-radius: 0 8px 8px 0;
   font-size: 0.8125rem;
-  color: #0a0a0a;
+  color: var(--color-gold-light);
   line-height: 1.5;
 }
 
@@ -2808,7 +2809,7 @@ body {
   width: 20px;
   height: 20px;
   background: var(--color-gold);
-  color: white;
+  color: #0a0a0a;
   font-size: 0.75rem;
   font-weight: 700;
   border-radius: 50%;
@@ -2880,5 +2881,9 @@ body {
   
   .wx-day {
     width: 80px;
+  }
+  
+  .wx-ai-metrics {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
