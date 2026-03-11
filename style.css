@@ -2348,6 +2348,7 @@ body {
   -ms-overflow-style: none;
   margin: 0 calc(var(--spacing-md) * -1);
   padding: 0 var(--spacing-md);
+  padding-top: 1;
   padding-bottom: var(--spacing-xs);
 }
 
