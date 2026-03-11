@@ -122,18 +122,27 @@ const CORS_HEADERS = {
 
 const PROVIDERS = [
   {
-    name: "Cerebras",
-    envKey: "CEREBRAS_API_KEY",
-    url: "https://api.cerebras.ai/v1/chat/completions",
-    model: "gpt-oss-120b",
-    timeoutMs: 10_000,
+    name: "Gemini",
+    type: "gemini",
+    envKey: "GEMINI_API_KEY",
+    model: "gemini-3.1-flash-lite-preview",
+    timeoutMs: 15_000,
   },
   {
     name: "Groq",
+    type: "openai",
     envKey: "GROQ_API_KEY",
     url: "https://api.groq.com/openai/v1/chat/completions",
     model: "moonshotai/kimi-k2-instruct-0905",
     timeoutMs: 30_000,
+  },
+  {
+    name: "Cerebras",
+    type: "openai",
+    envKey: "CEREBRAS_API_KEY",
+    url: "https://api.cerebras.ai/v1/chat/completions",
+    model: "gpt-oss-120b",
+    timeoutMs: 10_000,
   },
 ];
 
@@ -141,29 +150,72 @@ function jsonResponse(body, status = 200) {
   return Response.json(body, { status, headers: { "Access-Control-Allow-Origin": "*" } });
 }
 
-async function callProvider({ url, model, apiKey, messages, timeoutMs }) {
-  const fetchPromise = fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: 0.8,
-      max_completion_tokens: 3072,
-      top_p: 1,
-      stream: false,
-      response_format: { type: "json_object" },
-    }),
-  });
+function withTimeout(promise, ms, label) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
 
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(`${url} timed out after ${timeoutMs}ms`)), timeoutMs)
+async function callGemini({ model, apiKey, systemPrompt, userContent, timeoutMs }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const res = await withTimeout(
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userContent }] }],
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 3072,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "MINIMAL" },
+        },
+      }),
+    }),
+    timeoutMs,
+    "Gemini"
   );
 
-  const res = await Promise.race([fetchPromise, timeoutPromise]);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const data = await res.json();
+  const parts = data.candidates?.[0]?.content?.parts;
+  if (!parts?.length) throw new Error("Empty content");
+
+  const textPart = parts.find((p) => !p.thought && p.text);
+  if (!textPart) throw new Error("No text part in response");
+
+  return JSON.parse(textPart.text);
+}
+
+async function callOpenAI({ url, model, apiKey, systemPrompt, userContent, timeoutMs }) {
+  const res = await withTimeout(
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+        temperature: 0.8,
+        max_completion_tokens: 3072,
+        top_p: 1,
+        stream: false,
+        response_format: { type: "json_object" },
+      }),
+    }),
+    timeoutMs,
+    url
+  );
+
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
   const data = await res.json();
@@ -188,11 +240,7 @@ export default {
       return jsonResponse({ error: "weather_data is required" }, 400);
     }
 
-    const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: JSON.stringify(weather_data) },
-    ];
-
+    const userContent = JSON.stringify(weather_data);
     const errors = [];
 
     for (const provider of PROVIDERS) {
@@ -205,7 +253,13 @@ export default {
       }
 
       try {
-        const advice = await callProvider({ ...provider, apiKey, messages });
+        const callFn = provider.type === "gemini" ? callGemini : callOpenAI;
+        const advice = await callFn({
+          ...provider,
+          apiKey,
+          systemPrompt: SYSTEM_PROMPT,
+          userContent,
+        });
         return jsonResponse(advice);
       } catch (err) {
         const msg = `${provider.name}: ${err.message}`;
