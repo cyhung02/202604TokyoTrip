@@ -126,7 +126,7 @@ const PROVIDERS = [
     type: "gemini",
     envKey: "GEMINI_API_KEY",
     model: "gemini-3.1-flash-lite-preview",
-    timeoutMs: 15_000,
+    timeoutMs: 10_000,
   },
   {
     name: "Groq",
@@ -134,7 +134,7 @@ const PROVIDERS = [
     envKey: "GROQ_API_KEY",
     url: "https://api.groq.com/openai/v1/chat/completions",
     model: "moonshotai/kimi-k2-instruct-0905",
-    timeoutMs: 30_000,
+    timeoutMs: 10_000,
   },
   {
     name: "Cerebras",
