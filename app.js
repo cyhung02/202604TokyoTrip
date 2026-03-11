@@ -302,11 +302,11 @@ function render7DayForecast(data, locationKey) {
   if (!grid || !data.daily) return;
   
   const daily = data.daily;
-  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
+  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   grid.innerHTML = daily.time.map((dateStr, index) => {
     const date = new Date(dateStr);
-    const dayChar = jpDays[date.getDay()];
+    const dayChar = enDays[date.getDay()];
     const dateNum = date.getDate();
     const weather = getWeatherInfo(daily.weather_code[index]);
     const tempMax = Math.round(daily.temperature_2m_max[index]);
@@ -374,8 +374,8 @@ function renderWeatherDetail(dayInput) {
   const dateNum = date.getDate();
   const month = date.getMonth() + 1;
   const weather = getWeatherInfo(dayInput.weather_code);
-  const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
-  const dayChar = jpDays[date.getDay()];
+  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayChar = enDays[date.getDay()];
   
   const sunrise = dayInput.sunrise
     ? new Date(dayInput.sunrise).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -405,7 +405,7 @@ function renderWeatherDetail(dayInput) {
   section.innerHTML = `
     <div class="wx-detail">
       <div class="wx-detail-label">
-        ${month}月${dateNum}日（${dayChar}）<span class="wx-detail-cond">${weather.icon} ${weather.desc}</span>
+        ${month}/${dateNum} ${dayChar} <span class="wx-detail-cond">${weather.icon} ${weather.desc}</span>
       </div>
 
       <div class="wx-detail-temps">

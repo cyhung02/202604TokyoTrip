@@ -159,7 +159,7 @@ body {
 
 .bottom-nav-label {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -366,7 +366,7 @@ body {
 .flight-card {
   background: white;
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-lg);
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
@@ -434,7 +434,7 @@ body {
 }
 
 .flight-name {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.02em;
 }
@@ -457,7 +457,7 @@ body {
 }
 
 .flight-duration {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
   margin-bottom: var(--spacing-sm);
   letter-spacing: 0.05em;
@@ -489,34 +489,10 @@ body {
 }
 
 .flight-date {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-sm);
-  border-top: 1px dashed rgba(0, 0, 0, 0.1);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
-  text-align: center;
-  letter-spacing: 0.05em;
-  position: relative;
-}
-
-.flight-date::before,
-.flight-date::after {
-  content: '';
-  position: absolute;
-  top: -7px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.flight-date::before {
-  left: -22px;
-  background: var(--color-washi-dark);
-}
-
-.flight-date::after {
-  right: -22px;
-  background: var(--color-washi-dark);
+  letter-spacing: 0.03em;
+  font-weight: 400;
 }
 
 /* Info Box */
@@ -633,7 +609,7 @@ body {
   padding: 1px 8px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
 }
 
 .hotel-name {
@@ -682,7 +658,7 @@ body {
 }
 
 .hotel-expand-hint {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
   text-align: right;
   margin-top: var(--spacing-sm);
@@ -816,7 +792,7 @@ body {
   color: var(--color-ink-muted);
   display: flex;
   align-items: center;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   opacity: 0.4;
 }
 
@@ -841,15 +817,10 @@ body {
 .spot-card {
   background: white;
   border-radius: var(--radius-lg);
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: var(--shadow-sm);
-  border-left: 2px solid var(--color-sakura);
-  transition: border-color var(--transition-fast);
-}
-
-.spot-card:hover {
-  border-left-color: var(--color-vermillion);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 /* Spot Image (Wikipedia) */
@@ -1451,7 +1422,7 @@ body {
 
 .footer-version {
   display: inline-block;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   opacity: 0.6;
   margin-left: var(--spacing-xs);
 }
@@ -1847,14 +1818,14 @@ body {
 }
 
 .wx-stat-val small {
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
 }
 
 .wx-stat-lbl {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.1em;
   color: var(--color-ink-muted);
 }
@@ -2012,7 +1983,7 @@ body {
 }
 
 .wx-day-rain {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--color-indigo);
   background: rgba(26, 54, 93, 0.06);
@@ -2180,14 +2151,14 @@ body {
 }
 
 .wx-detail-metric-val small {
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
 }
 
 .wx-detail-metric-lbl {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   color: var(--color-ink-muted);
@@ -2200,7 +2171,7 @@ body {
 
 .wx-detail-hourly-label {
   font-family: var(--font-display);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--color-ink-muted);
@@ -2250,7 +2221,7 @@ body {
 }
 
 .wx-ai-hourly-precip {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-indigo-light);
   font-weight: 600;
 }
@@ -2280,7 +2251,7 @@ body {
 
 .wx-detail-outfit h3 {
   font-family: var(--font-display);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   color: var(--color-indigo);
@@ -2365,7 +2336,7 @@ body {
 /* Weather Footer */
 .wx-footer {
   text-align: center;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   color: var(--color-ink-muted);
   opacity: 0.35;
   letter-spacing: 0.08em;
@@ -2415,11 +2386,6 @@ body {
 @media (min-width: 768px) {
   .hero-title {
     font-size: 3rem;
-  }
-
-  .highlight-grid {
-    grid-template-columns: repeat(4, 1fr);
-    max-width: 600px;
   }
 
   .phrase-grid {
