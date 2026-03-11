@@ -66,7 +66,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.7;
   color: var(--color-ink);
   background-color: var(--color-washi);
@@ -234,7 +234,7 @@ body {
 
 .hero-subtitle {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -405,7 +405,7 @@ body {
 }
 
 .flight-number {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   font-weight: 500;
   letter-spacing: 0.03em;
@@ -434,7 +434,7 @@ body {
 }
 
 .flight-name {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.02em;
 }
@@ -457,7 +457,7 @@ body {
 }
 
 .flight-duration {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   margin-bottom: var(--spacing-sm);
   letter-spacing: 0.05em;
@@ -489,7 +489,7 @@ body {
 }
 
 .flight-date {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.03em;
   font-weight: 400;
@@ -506,7 +506,7 @@ body {
 
 .info-box-title {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-sm);
@@ -521,7 +521,7 @@ body {
 }
 
 .info-box-list li {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink-light);
   padding-left: var(--spacing-md);
   position: relative;
@@ -597,7 +597,7 @@ body {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   margin-bottom: 6px;
   letter-spacing: 0.02em;
@@ -622,7 +622,7 @@ body {
 }
 
 .hotel-location {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
 }
 
@@ -641,13 +641,13 @@ body {
   display: flex;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .hotel-detail-label {
   color: var(--color-ink-muted);
   min-width: 65px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   letter-spacing: 0.03em;
 }
 
@@ -753,7 +753,7 @@ body {
 }
 
 .day-date {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   margin-bottom: 6px;
   letter-spacing: 0.08em;
@@ -780,7 +780,7 @@ body {
 }
 
 .flow-item {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink);
   padding: 4px 10px;
   background: var(--color-washi);
@@ -886,14 +886,14 @@ body {
   width: 100%;
   padding: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   justify-content: flex-start;
   color: var(--color-ink-muted);
 }
 
 .spot-hours {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-gold);
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
@@ -901,7 +901,7 @@ body {
 }
 
 .spot-desc {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink-light);
   line-height: 1.75;
 }
@@ -988,7 +988,7 @@ body {
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .food-item:last-child,
@@ -1000,7 +1000,7 @@ body {
   font-weight: 600;
   color: var(--color-indigo);
   min-width: 80px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   letter-spacing: 0.02em;
 }
 
@@ -1038,7 +1038,7 @@ body {
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-lg);
   margin-top: var(--spacing-xl);
-  font-size: 0.875rem;
+  font-size: 1rem;
   letter-spacing: 0.02em;
 }
 
@@ -1065,7 +1065,7 @@ body {
 .info-tab {
   flex-shrink: 0;
   padding: 8px 14px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-ink-muted);
   background: transparent;
@@ -1118,7 +1118,7 @@ body {
   position: relative;
   padding-left: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink-light);
   line-height: 1.7;
 }
@@ -1144,7 +1144,7 @@ body {
   gap: var(--spacing-sm);
   padding: 10px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  font-size: 0.875rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: opacity var(--transition-fast);
 }
@@ -1179,7 +1179,7 @@ body {
 .checklist-checkbox::after {
   content: '✓';
   color: white;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -1196,7 +1196,7 @@ body {
   color: var(--color-ink);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin-bottom: var(--spacing-lg);
   border-left: 2px solid var(--color-gold);
 }
@@ -1243,7 +1243,7 @@ body {
 }
 
 .app-desc {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   line-height: 1.5;
 }
@@ -1274,7 +1274,7 @@ body {
 
 .emergency-title {
   font-family: var(--font-display);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
   opacity: 0.8;
@@ -1290,7 +1290,7 @@ body {
 }
 
 .emergency-desc {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   opacity: 0.6;
   letter-spacing: 0.02em;
 }
@@ -1356,7 +1356,7 @@ body {
 }
 
 .phrase-meaning {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink-light);
 }
 
@@ -1408,7 +1408,7 @@ body {
 }
 
 .footer-subtitle {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: rgba(248, 215, 215, 0.6);
   margin-bottom: var(--spacing-md);
   letter-spacing: 0.12em;
@@ -1422,7 +1422,7 @@ body {
 
 .footer-version {
   display: inline-block;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   opacity: 0.6;
   margin-left: var(--spacing-xs);
 }
@@ -1439,7 +1439,7 @@ body {
   color: white;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: 20px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   box-shadow: var(--shadow-lg);
   opacity: 0;
   transition: all var(--transition-base);
@@ -1472,7 +1472,7 @@ body {
 
 .install-prompt p {
   flex: 1;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink);
 }
 
@@ -1482,7 +1482,7 @@ body {
   color: white;
   border: none;
   border-radius: 20px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition-fast);
@@ -1498,7 +1498,7 @@ body {
   background: none;
   border: none;
   color: var(--color-ink-muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   cursor: pointer;
 }
 
@@ -1528,7 +1528,7 @@ body {
   padding: 8px 12px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   background: var(--color-washi);
   transition: border-color var(--transition-fast);
 }
@@ -1544,7 +1544,7 @@ body {
   color: white;
   border: none;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -1585,7 +1585,7 @@ body {
 }
 
 .sakura-intro {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink-light);
   margin-bottom: var(--spacing-md);
   line-height: 1.75;
@@ -1635,7 +1635,7 @@ body {
 }
 
 .sakura-link-desc {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
 }
 
@@ -1732,7 +1732,7 @@ body {
 }
 
 .wx-hero-context {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.08em;
   margin-bottom: var(--spacing-md);
@@ -1818,7 +1818,7 @@ body {
 }
 
 .wx-stat-val small {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
@@ -1847,7 +1847,7 @@ body {
   color: #fff;
   border: none;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   letter-spacing: 0.03em;
@@ -2007,7 +2007,7 @@ body {
 }
 
 .wx-ai-empty p {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-muted);
   letter-spacing: 0.05em;
 }
@@ -2027,7 +2027,7 @@ body {
   color: var(--color-indigo);
   border: 1px solid var(--color-indigo);
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 0.03em;
@@ -2046,7 +2046,7 @@ body {
 .wx-detail-label {
   text-align: center;
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-ink);
   margin-bottom: var(--spacing-lg);
@@ -2120,7 +2120,7 @@ body {
 }
 
 .wx-detail-quote p {
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.85;
   margin: 0;
 }
@@ -2145,13 +2145,13 @@ body {
 
 .wx-detail-metric-val {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-ink);
 }
 
 .wx-detail-metric-val small {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
@@ -2199,7 +2199,7 @@ body {
 
 .wx-ai-hourly-temp {
   font-family: var(--font-display);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-ink);
 }
@@ -2233,7 +2233,7 @@ body {
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
   color: var(--color-ink-muted);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   letter-spacing: 0.03em;
 }
 
@@ -2278,7 +2278,7 @@ body {
 }
 
 .wx-detail-outfit-item p {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--color-ink);
   margin: 0;
   line-height: 1.6;
@@ -2298,7 +2298,7 @@ body {
   padding: 4px 12px;
   background: rgba(26, 54, 93, 0.04);
   color: var(--color-ink);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   border-radius: 14px;
 }
@@ -2312,7 +2312,7 @@ body {
   margin-top: var(--spacing-md);
   background: rgba(196, 150, 58, 0.05);
   border-radius: var(--radius-md);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-ink-light);
   line-height: 1.6;
   border-left: 2px solid var(--color-gold);
@@ -2374,7 +2374,7 @@ body {
 
   .wx-nav-btn {
     padding: 6px 10px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 
   .hero-title {
