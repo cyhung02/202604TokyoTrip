@@ -1424,7 +1424,7 @@ body {
    ======================================== */
 
 .wx {
-  background: var(--color-washi-dark);
+  background: var(--color-washi);
   position: relative;
 }
 
