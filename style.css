@@ -266,9 +266,9 @@ body {
 }
 
 .hero-rule {
-  width: 40px;
+  width: 56px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-sakura), transparent);
+  background: linear-gradient(90deg, transparent, rgba(248, 215, 215, 0.7), transparent);
   margin: 0 auto var(--spacing-lg);
 }
 
@@ -306,6 +306,8 @@ body {
 
 .section-alt {
   background: var(--color-washi-dark);
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
@@ -326,9 +328,10 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
+  width: 28px;
   height: 2px;
   background: var(--color-vermillion);
+  border-radius: 1px;
 }
 
 .section-title-jp {
@@ -488,11 +491,32 @@ body {
 .flight-date {
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-washi-dark);
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
   font-size: 0.6875rem;
   color: var(--color-ink-muted);
   text-align: center;
   letter-spacing: 0.05em;
+  position: relative;
+}
+
+.flight-date::before,
+.flight-date::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.flight-date::before {
+  left: -22px;
+  background: var(--color-washi-dark);
+}
+
+.flight-date::after {
+  right: -22px;
+  background: var(--color-washi-dark);
 }
 
 /* Info Box */
@@ -742,14 +766,14 @@ body {
 }
 
 .day-header::after {
-  content: '◇';
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.5rem;
-  color: var(--color-sakura-dark);
-  letter-spacing: 0;
+  width: 20px;
+  height: 1px;
+  background: var(--color-sakura);
 }
 
 .day-date {
