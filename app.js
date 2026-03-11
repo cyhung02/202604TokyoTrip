@@ -670,8 +670,24 @@ function addCustomItem(text) {
 function deleteCustomItem(index) {
   customItems.splice(index, 1);
   localStorage.setItem('customItems', JSON.stringify(customItems));
-  delete checkedItems['custom_' + index];
+
+  // Re-index checked states so they stay aligned with the array after removal
+  const updated = {};
+  for (const key in checkedItems) {
+    if (!key.startsWith('custom_')) {
+      updated[key] = checkedItems[key];
+      continue;
+    }
+    const i = parseInt(key.split('_')[1]);
+    if (i < index) {
+      updated[key] = checkedItems[key];
+    } else if (i > index) {
+      updated['custom_' + (i - 1)] = checkedItems[key];
+    }
+  }
+  checkedItems = updated;
   localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+
   renderCustomItems();
   showToast('已刪除項目');
 }
