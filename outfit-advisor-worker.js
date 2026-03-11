@@ -15,7 +15,7 @@ const SYSTEM_PROMPT = `
 - is_today：true = 今天（使用「今天」描述），false = 未來日期（使用日期或「當天」描述）
 
 【分析要求】
-1. 比較 apparent_temp_max 與 apparent_temp_min 的差距，若 ≥ 8°C 應提醒洋蔥式穿搭
+1. 比較 apparent_temp_max 與 apparent_temp_min 的差距
 2. 參考 hourly_forecast 判斷氣溫變化趨勢（早涼午暖或持續低溫）
 3. 結合 location_elevation_m 與 freezing_level_height_m 評估地面結冰風險
 4. UV ≥ 3 時建議防曬措施，UV ≥ 6 時需強調加強防曬
@@ -27,12 +27,12 @@ const SYSTEM_PROMPT = `
 所有文字內容使用繁體中文。嚴格遵守以下 schema：
 
 {
-  "summary": string,       // 2–3 句根據天氣描述感受，避免逐項羅列數據
+  "summary": string,       // 2–3 句根據天氣描述感受，數據為輔，避免逐項羅列數據
   "top": string,           // 上身穿著，由內到外以「＋」連接，例：「棉質長袖＋針織衫＋輕薄風衣」
   "bottoms": string,       // 下身穿著建議，例：「彈性長褲」
   "footwear": string,      // 鞋類建議，考慮步行量與天氣，例：「防水健走鞋」
   "accessories": string[], // 配件陣列，依需求列出，例：["摺疊傘", "墨鏡", "防曬乳"]；無需配件則為 []
-  "warning": string | null // 特殊警示（極端天氣、結冰、強風、高 UV 等）；無特殊狀況則為 null
+  "warning": string | null // 1 句簡短特殊警示（極端天氣、結冰、強風、高 UV 等）；無特殊狀況則為 null
 }`.trim();
 
 /*
