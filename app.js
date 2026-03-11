@@ -35,6 +35,8 @@ let aiAdviceCache = JSON.parse(localStorage.getItem('aiAdviceCache') || '{}');
 let currentWeatherLocation = 'tokyo';
 let selectedWeatherDate = null;
 let allWeatherData = {};
+let wikiImageCache = JSON.parse(localStorage.getItem('wikiImageCache') || '{}');
+const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 
 // Weather API configuration (Open-Meteo Forecast API)
 // Uses best_match model which combines JMA MSM (short-term) and ECMWF (medium-term)
@@ -757,6 +759,117 @@ function renderHotels() {
   `).join('');
 }
 
+// ========================================
+// Wikipedia Image Functions
+// ========================================
+
+async function fetchWikiImages(jpNames) {
+  const now = Date.now();
+  const uncached = jpNames.filter(name => {
+    const cached = wikiImageCache[name];
+    return !cached || (now - cached.timestamp > WIKI_CACHE_TTL);
+  });
+
+  if (uncached.length === 0) return;
+
+  const titlesParam = uncached.map(n => encodeURIComponent(n)).join('|');
+  const url = `https://ja.wikipedia.org/w/api.php?action=query&titles=${titlesParam}&prop=pageimages&format=json&pithumbsize=600&origin=*&redirects=1`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return;
+    const data = await response.json();
+
+    const titleMap = {};
+    uncached.forEach(name => { titleMap[name] = name; });
+
+    if (data.query.normalized) {
+      for (const { from, to } of data.query.normalized) {
+        const original = Object.keys(titleMap).find(k => titleMap[k] === from);
+        if (original) titleMap[original] = to;
+      }
+    }
+    if (data.query.redirects) {
+      for (const { from, to } of data.query.redirects) {
+        const original = Object.keys(titleMap).find(k => titleMap[k] === from);
+        if (original) titleMap[original] = to;
+      }
+    }
+
+    const finalToOriginal = {};
+    for (const [original, final] of Object.entries(titleMap)) {
+      finalToOriginal[final] = original;
+    }
+
+    for (const page of Object.values(data.query.pages)) {
+      const jpName = finalToOriginal[page.title];
+      if (jpName) {
+        wikiImageCache[jpName] = {
+          url: page.thumbnail ? page.thumbnail.source : null,
+          timestamp: now
+        };
+      }
+    }
+
+    // Mark uncached names that had no matching page as null
+    for (const name of uncached) {
+      if (!wikiImageCache[name] || wikiImageCache[name].timestamp !== now) {
+        wikiImageCache[name] = { url: null, timestamp: now };
+      }
+    }
+
+    localStorage.setItem('wikiImageCache', JSON.stringify(wikiImageCache));
+  } catch (error) {
+    console.error('Wikipedia image fetch error:', error);
+  }
+}
+
+async function loadSpotImages() {
+  const spotCards = document.querySelectorAll('.spot-card[data-jp-name]');
+  if (spotCards.length === 0) return;
+
+  const jpNames = [];
+  spotCards.forEach(card => {
+    const jpName = card.dataset.jpName;
+    if (jpName) jpNames.push(jpName);
+  });
+
+  // Render cached images immediately
+  spotCards.forEach(card => {
+    const jpName = card.dataset.jpName;
+    const cached = wikiImageCache[jpName];
+    if (cached && cached.url) {
+      injectSpotImage(card, cached.url);
+    }
+  });
+
+  // Fetch uncached images
+  await fetchWikiImages(jpNames);
+
+  // Render newly fetched images
+  spotCards.forEach(card => {
+    if (card.querySelector('.spot-img-wrap')) return;
+    const jpName = card.dataset.jpName;
+    const cached = wikiImageCache[jpName];
+    if (cached && cached.url) {
+      injectSpotImage(card, cached.url);
+    }
+  });
+}
+
+function injectSpotImage(card, imageUrl) {
+  const wrap = document.createElement('div');
+  wrap.className = 'spot-img-wrap';
+  const img = document.createElement('img');
+  img.className = 'spot-img';
+  img.alt = card.querySelector('.spot-name')?.textContent || '';
+  img.loading = 'lazy';
+  img.onload = () => img.classList.add('loaded');
+  img.src = imageUrl;
+  wrap.appendChild(img);
+  card.insertBefore(wrap, card.firstChild);
+}
+
 function renderDayContent(day) {
   const data = itinerary.find(d => d.day === day);
   if (!data) return;
@@ -769,7 +882,7 @@ function renderDayContent(day) {
     <div class="spot-section">
       <h3 class="spot-section-title">景點資訊</h3>
       ${data.spots.map(spot => `
-        <div class="spot-card">
+        <div class="spot-card"${spot.jpName ? ` data-jp-name="${spot.jpName}"` : ''}>
           <div class="spot-header">
             <div class="spot-name">${spot.name}</div>
             <a href="https://www.google.com/maps/search/${encodeURIComponent(spot.name)}" target="_blank" rel="noopener noreferrer" class="maps-btn" title="在 Google Maps 開啟">
@@ -832,6 +945,8 @@ function renderDayContent(day) {
     ${transportHtml}
     ${accommodationHtml}
   `;
+
+  loadSpotImages();
 }
 
 function renderInfoContent(infoKey) {
