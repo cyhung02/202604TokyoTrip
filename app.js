@@ -151,11 +151,13 @@ function buildDailyAIInput(rawData, dateStr) {
     }));
   
   const weatherCode = daily.weather_code[dateIndex];
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
   
   return {
     location_name: rawData.location_name,
     location_elevation_m: rawData.elevation,
     date: daily.time[dateIndex],
+    is_today: dateStr === todayStr,
     weather_code: weatherCode,
     weather_description: getWeatherInfo(weatherCode).desc,
     actual_temp_max_c: daily.temperature_2m_max[dateIndex],
@@ -200,7 +202,6 @@ async function initWeatherSection() {
 async function loadWeatherData(locationKey) {
   const currentCard = document.getElementById('weather-current-card');
   const grid = document.getElementById('weather-7day-grid');
-  const location = WEATHER_LOCATIONS[locationKey];
   
   currentCard.innerHTML = `<div class="wx-hero-loader"><div class="wx-spinner"></div></div>`;
   grid.innerHTML = `<div class="wx-days-loader"><div class="wx-spinner"></div></div>`;
@@ -256,7 +257,6 @@ function renderCurrentWeather(data) {
   
   const current = data.current;
   const weather = getWeatherInfo(current.weather_code);
-  const isDay = current.is_day === 1;
   const temp = Math.round(current.temperature_2m);
   const feelsLike = Math.round(current.apparent_temperature);
   
@@ -909,18 +909,6 @@ function handlePhraseCopy(el) {
     });
 }
 
-function setupScrollAnimations() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-}
-
 function scrollToDayContent() {
   const dayHeader = document.querySelector('.day-header');
   if (!dayHeader) return;
@@ -1115,7 +1103,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDayContent(currentDay);
   renderInfoContent(currentInfo);
   renderPhrases();
-  setupScrollAnimations();
   setupBottomNav();
   
   // Initialize weather section
