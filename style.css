@@ -24,6 +24,32 @@
   --font-serif: 'Shippori Mincho B1', 'Noto Serif JP', serif;
   --font-sans: 'Noto Sans TC', sans-serif;
 
+  /*
+   * ─── Typography Scale ─────────────────────────────────────────────────────
+   *
+   *  --text-micro  0.6875rem  11px  章節英文小字、badge、nav label、真正的印記文字
+   *  --text-xs     0.75rem    12px  日期戳記、時間戳、分隔提示
+   *  --text-sm     0.8125rem  13px  次要說明、caption、表單標籤、工具提示
+   *  --text-base   0.9375rem  15px  主要內文（印刷質感 body）
+   *  --text-md     1.0625rem  17px  強調內文、卡片描述
+   *  --text-lg     1.25rem    20px  卡片標題、景點名
+   *  --text-xl     1.5rem     24px  子區塊標題
+   *  --text-2xl    1.875rem   30px  Section 標題（editorial impact）
+   *  --text-3xl    2rem       32px  航班代碼等大型數字
+   *  --text-hero   clamp      fluid 英雄標題
+   *
+   * ──────────────────────────────────────────────────────────────────────────
+   */
+  --text-micro: 0.6875rem;
+  --text-xs:    0.75rem;
+  --text-sm:    0.8125rem;
+  --text-base:  0.9375rem;
+  --text-md:    1.0625rem;
+  --text-lg:    1.25rem;
+  --text-xl:    1.5rem;
+  --text-2xl:   1.875rem;
+  --text-3xl:   2rem;
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -66,8 +92,8 @@ html {
 
 body {
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: var(--text-base); /* 15px — 印刷質感 body，比 16px 更精緻 */
+  line-height: 1.75;           /* 日系雜誌行距，稍寬 */
   color: var(--color-ink);
   background-color: var(--color-washi);
   overflow-x: hidden;
@@ -159,9 +185,9 @@ body {
 
 .bottom-nav-label {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 印記文字，日系設計慣用極小 label */
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   line-height: 1;
 }
 
@@ -234,9 +260,9 @@ body {
 
 .hero-subtitle {
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 上方烙印標籤，刻意纖細 */
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.42em;   /* 寬字距強化雜誌感 */
   text-transform: uppercase;
   color: rgba(248, 215, 215, 0.9);
   margin-bottom: var(--spacing-lg);
@@ -244,12 +270,13 @@ body {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: 2.25rem;
+  /* clamp: 最小 2rem / 理想 7vw / 最大 3.75rem — 流暢響應無跳躍 */
+  font-size: clamp(2rem, 7vw, 3.75rem);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.2;
   margin-bottom: var(--spacing-lg);
   white-space: nowrap;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .hero-title-line {
@@ -274,19 +301,19 @@ body {
 
 .hero-date {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 日期主資訊 */
   font-weight: 400;
   color: var(--color-washi);
   opacity: 0.92;
   margin-bottom: var(--spacing-xs);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .hero-duration {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 副標印記 */
   color: rgba(248, 215, 215, 0.85);
   font-weight: 400;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
 }
 
 /* ========================================
@@ -312,7 +339,7 @@ body {
 
 .section-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl); /* 30px — 更具雜誌衝擊力的 section 標題 */
   font-weight: 700;
   color: var(--color-indigo);
   text-align: center;
@@ -337,9 +364,9 @@ body {
 .section-title-jp {
   display: block;
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 日文注記，如印鑑般的微型標記 */
   font-weight: 400;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
   color: var(--color-ink-muted);
   margin-bottom: 6px;
 }
@@ -347,10 +374,10 @@ body {
 .section-desc {
   text-align: center;
   color: var(--color-ink-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 區塊說明文字 */
   margin-top: calc(var(--spacing-2xl) * -1 + var(--spacing-sm));
   margin-bottom: var(--spacing-xl);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 /* ========================================
@@ -398,14 +425,14 @@ body {
 
 .flight-label {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 行程方向標籤 */
   font-weight: 600;
   color: var(--color-indigo);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 
 .flight-number {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 航班號碼輔助文字 */
   color: var(--color-ink-muted);
   font-weight: 500;
   letter-spacing: 0.03em;
@@ -427,25 +454,25 @@ body {
 
 .flight-code {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: var(--text-3xl); /* 32px — 機場代碼大字，視覺錨點 */
   font-weight: 700;
   color: var(--color-indigo);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .flight-name {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 機場全名輔助標記 */
   color: var(--color-ink-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .flight-time {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: var(--text-lg); /* 20px — 起降時間，次要大字 */
   font-weight: 600;
   color: var(--color-ink);
   margin-top: var(--spacing-xs);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .flight-arrow {
@@ -457,10 +484,10 @@ body {
 }
 
 .flight-duration {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 飛行時間標記 */
   color: var(--color-ink-muted);
   margin-bottom: var(--spacing-sm);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .flight-line {
@@ -482,16 +509,16 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   color: var(--color-indigo);
   background: white;
   padding: 0 6px;
 }
 
 .flight-date {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 日期戳記 */
   color: var(--color-ink-muted);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   font-weight: 400;
 }
 
@@ -506,11 +533,11 @@ body {
 
 .info-box-title {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 小卡片標題 */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-sm);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .info-box-list {
@@ -521,11 +548,11 @@ body {
 }
 
 .info-box-list li {
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 內文條目 */
   color: var(--color-ink-light);
   padding-left: var(--spacing-md);
   position: relative;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .info-box-list li::before {
@@ -597,10 +624,10 @@ body {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 入退房日期說明 */
   color: var(--color-ink-muted);
   margin-bottom: 6px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .hotel-nights {
@@ -609,20 +636,20 @@ body {
   padding: 1px 8px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 夜數 badge */
 }
 
 .hotel-name {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-md); /* 17px — 飯店名稱卡片標題 */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .hotel-location {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 地點說明 */
   color: var(--color-ink-muted);
 }
 
@@ -641,14 +668,14 @@ body {
   display: flex;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 詳細資訊 */
 }
 
 .hotel-detail-label {
   color: var(--color-ink-muted);
   min-width: 65px;
-  font-size: 0.875rem;
-  letter-spacing: 0.03em;
+  font-size: var(--text-xs); /* 12px — 欄位標籤 */
+  letter-spacing: 0.04em;
 }
 
 .hotel-detail-value {
@@ -658,11 +685,11 @@ body {
 }
 
 .hotel-expand-hint {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 展開提示印記 */
   color: var(--color-ink-muted);
   text-align: right;
   margin-top: var(--spacing-sm);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .hotel-card.expanded .hotel-expand-hint {
@@ -701,7 +728,7 @@ body {
   min-width: 56px;
   padding: 8px 4px;
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — tab 文字，精緻日期導覽 */
   font-weight: 500;
   color: var(--color-ink-muted);
   background: transparent;
@@ -753,18 +780,18 @@ body {
 }
 
 .day-date {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 日期戳記 */
   color: var(--color-ink-muted);
   margin-bottom: 6px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .day-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: var(--text-xl); /* 24px — 每日標題，略大增加衝擊 */
   font-weight: 700;
   color: var(--color-indigo);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .day-flow {
@@ -780,19 +807,19 @@ body {
 }
 
 .flow-item {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 流程節點標籤 */
   color: var(--color-ink);
   padding: 4px 10px;
   background: var(--color-washi);
   border-radius: 20px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 .flow-arrow {
   color: var(--color-ink-muted);
   display: flex;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: var(--text-xs); /* 12px */
   opacity: 0.4;
 }
 
@@ -805,13 +832,13 @@ body {
 
 .spot-section-title {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-md); /* 17px — 景點區塊標題 */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--color-sakura);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .spot-card {
@@ -853,12 +880,12 @@ body {
 
 .spot-name {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-md); /* 17px — 景點名稱卡片主標題 */
   font-weight: 600;
   color: var(--color-ink);
   margin-bottom: var(--spacing-xs);
   flex: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .maps-btn {
@@ -886,24 +913,24 @@ body {
   width: 100%;
   padding: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   font-weight: 500;
   justify-content: flex-start;
   color: var(--color-ink-muted);
 }
 
 .spot-hours {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 營業時間提示 */
   color: var(--color-gold);
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .spot-desc {
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 景點描述內文 */
   color: var(--color-ink-light);
-  line-height: 1.75;
+  line-height: 1.85;
 }
 
 /* ========================================
@@ -925,7 +952,7 @@ body {
 
 .markdown-content li {
   margin-bottom: 0.25em;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .markdown-content li::marker {
@@ -957,7 +984,7 @@ body {
   background: rgba(196, 150, 58, 0.05);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   color: var(--color-ink-light);
-  font-size: 0.9em;
+  font-size: 0.93em;
 }
 
 .markdown-content blockquote p {
@@ -968,7 +995,7 @@ body {
   background: var(--color-washi-dark);
   padding: 0.1em 0.35em;
   border-radius: var(--radius-sm);
-  font-size: 0.9em;
+  font-size: 0.92em;
 }
 
 /* ========================================
@@ -988,7 +1015,7 @@ body {
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
 }
 
 .food-item:last-child,
@@ -1000,8 +1027,8 @@ body {
   font-weight: 600;
   color: var(--color-indigo);
   min-width: 80px;
-  font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  font-size: var(--text-sm); /* 13px — 餐廳/地點名稱 */
+  letter-spacing: 0.03em;
 }
 
 .food-name {
@@ -1021,7 +1048,7 @@ body {
 .transport-name {
   font-weight: 600;
   color: var(--color-indigo);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
 }
 
 .transport-desc {
@@ -1038,12 +1065,12 @@ body {
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-lg);
   margin-top: var(--spacing-xl);
-  font-size: 1rem;
-  letter-spacing: 0.02em;
+  font-size: var(--text-base); /* 15px */
+  letter-spacing: 0.03em;
 }
 
 .accommodation-icon {
-  font-size: 1.125rem;
+  font-size: var(--text-md); /* 17px */
 }
 
 /* ========================================
@@ -1065,7 +1092,7 @@ body {
 .info-tab {
   flex-shrink: 0;
   padding: 8px 14px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — tab 文字 */
   font-weight: 500;
   color: var(--color-ink-muted);
   background: transparent;
@@ -1073,7 +1100,7 @@ body {
   border-radius: 20px;
   cursor: pointer;
   transition: all var(--transition-fast);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .info-tab:hover {
@@ -1103,11 +1130,11 @@ body {
 
 .info-card-title {
   font-family: var(--font-display);
-  font-size: 0.9375rem;
+  font-size: var(--text-md); /* 17px — 資訊卡標題，比原本 0.9375 稍大更有層次 */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-md);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .info-list {
@@ -1118,9 +1145,9 @@ body {
   position: relative;
   padding-left: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
   color: var(--color-ink-light);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .info-list li::before {
@@ -1144,7 +1171,7 @@ body {
   gap: var(--spacing-sm);
   padding: 10px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
   cursor: pointer;
   transition: opacity var(--transition-fast);
 }
@@ -1179,7 +1206,7 @@ body {
 .checklist-checkbox::after {
   content: '✓';
   color: white;
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 打勾符號 */
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -1196,7 +1223,7 @@ body {
   color: var(--color-ink);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
   margin-bottom: var(--spacing-lg);
   border-left: 2px solid var(--color-gold);
 }
@@ -1235,17 +1262,17 @@ body {
 }
 
 .app-name {
-  font-size: 0.875rem;
+  font-size: var(--text-base); /* 15px — App 名稱，作為卡片標題略升 */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-xs);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .app-desc {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — App 說明 */
   color: var(--color-ink-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* ========================================
@@ -1274,25 +1301,25 @@ body {
 
 .emergency-title {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 緊急類型標籤 */
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
   opacity: 0.8;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .emergency-number {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl); /* 30px — 緊急號碼大字，更具震撼感 */
   font-weight: 700;
   margin-bottom: var(--spacing-xs);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .emergency-desc {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 補充說明 */
   opacity: 0.6;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 /* ========================================
@@ -1340,30 +1367,30 @@ body {
 
 .phrase-jp {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: var(--text-lg); /* 20px — 日文主句，editorial impact */
   font-weight: 600;
   color: var(--color-indigo);
   margin-bottom: var(--spacing-xs);
-  letter-spacing: 0.02em;
-}
-
-.phrase-romaji {
-  font-size: 0.75rem;
-  color: var(--color-ink-muted);
-  margin-bottom: var(--spacing-sm);
-  font-style: italic;
   letter-spacing: 0.03em;
 }
 
+.phrase-romaji {
+  font-size: var(--text-micro); /* 11px — 羅馬拼音印記，刻意纖細 */
+  color: var(--color-ink-muted);
+  margin-bottom: var(--spacing-sm);
+  font-style: italic;
+  letter-spacing: 0.05em;
+}
+
 .phrase-meaning {
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 中文意思 */
   color: var(--color-ink-light);
 }
 
 .phrase-speak-btn {
   background: none;
   border: none;
-  font-size: 1.125rem;
+  font-size: var(--text-md); /* 17px — 發音按鈕圖示 */
   cursor: pointer;
   padding: 4px;
   border-radius: var(--radius-sm);
@@ -1401,28 +1428,28 @@ body {
 
 .footer-text {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: var(--text-lg); /* 20px — Footer 主標題 */
   font-weight: 600;
   margin-bottom: var(--spacing-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .footer-subtitle {
-  font-size: 0.875rem;
+  font-size: var(--text-xs); /* 12px — 副標 */
   color: rgba(248, 215, 215, 0.6);
   margin-bottom: var(--spacing-md);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.15em;
 }
 
 .footer-author {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 版權印記 */
   opacity: 0.35;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .footer-version {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px */
   opacity: 0.6;
   margin-left: var(--spacing-xs);
 }
@@ -1439,12 +1466,12 @@ body {
   color: white;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   box-shadow: var(--shadow-lg);
   opacity: 0;
   transition: all var(--transition-base);
   z-index: 2000;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .toast.show {
@@ -1472,7 +1499,7 @@ body {
 
 .install-prompt p {
   flex: 1;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   color: var(--color-ink);
 }
 
@@ -1482,11 +1509,11 @@ body {
   color: white;
   border: none;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition-fast);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .install-btn:hover {
@@ -1498,7 +1525,7 @@ body {
   background: none;
   border: none;
   color: var(--color-ink-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   cursor: pointer;
 }
 
@@ -1528,7 +1555,7 @@ body {
   padding: 8px 12px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   background: var(--color-washi);
   transition: border-color var(--transition-fast);
 }
@@ -1544,12 +1571,12 @@ body {
   color: white;
   border: none;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .add-item-btn:hover {
@@ -1560,7 +1587,7 @@ body {
   background: none;
   border: none;
   color: var(--color-ink-muted);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
   cursor: pointer;
   padding: 0 var(--spacing-xs);
   margin-left: auto;
@@ -1585,10 +1612,10 @@ body {
 }
 
 .sakura-intro {
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px */
   color: var(--color-ink-light);
   margin-bottom: var(--spacing-md);
-  line-height: 1.75;
+  line-height: 1.85;
 }
 
 .sakura-links {
@@ -1616,7 +1643,7 @@ body {
 }
 
 .sakura-link-icon {
-  font-size: 1.25rem;
+  font-size: var(--text-lg); /* 20px */
   flex-shrink: 0;
 }
 
@@ -1628,20 +1655,20 @@ body {
 }
 
 .sakura-link-name {
-  font-size: 0.875rem;
+  font-size: var(--text-base); /* 15px — 連結標題，比原本 0.875 稍大 */
   font-weight: 600;
   color: var(--color-indigo);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .sakura-link-desc {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 連結說明 */
   color: var(--color-ink-muted);
 }
 
 .sakura-link-arrow {
   color: var(--color-sakura-dark);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   flex-shrink: 0;
   opacity: 0.5;
 }
@@ -1672,7 +1699,7 @@ body {
   flex: 1;
   padding: 7px 12px;
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 地點選擇器標籤，纖細精緻 */
   font-weight: 500;
   color: var(--color-ink-muted);
   background: transparent;
@@ -1681,7 +1708,7 @@ body {
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .wx-nav-btn:hover {
@@ -1732,9 +1759,9 @@ body {
 }
 
 .wx-hero-context {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 地名與天況說明 */
   color: var(--color-ink-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   margin-bottom: var(--spacing-md);
 }
 
@@ -1752,7 +1779,7 @@ body {
 }
 
 .wx-hero-icon {
-  font-size: 3rem;
+  font-size: 2.75rem; /* 天氣圖示，比原本 3rem 略收，與字型比例更協調 */
   line-height: 1;
 }
 
@@ -1764,7 +1791,8 @@ body {
 
 .wx-hero-temp-num {
   font-family: var(--font-display);
-  font-size: 5.5rem;
+  /* clamp: 最小 4rem / 理想 13vw / 最大 6rem — 消除斷點跳躍 */
+  font-size: clamp(4rem, 13vw, 6rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--color-ink);
@@ -1772,10 +1800,10 @@ body {
 
 .wx-hero-temp-unit {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: var(--text-md); /* 17px — 溫度單位 */
   font-weight: 400;
   color: var(--color-ink-muted);
-  margin-top: 1rem;
+  margin-top: 0.9rem;
 }
 
 .wx-hero-stats {
@@ -1812,21 +1840,21 @@ body {
 
 .wx-stat-val {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
+  font-size: var(--text-md); /* 17px — 天氣數值 */
   font-weight: 600;
   color: var(--color-ink);
 }
 
 .wx-stat-val small {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 單位 */
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
 }
 
 .wx-stat-lbl {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-size: var(--text-micro); /* 11px — 體感/濕度/風速標籤 */
+  letter-spacing: 0.12em;
   color: var(--color-ink-muted);
 }
 
@@ -1847,10 +1875,10 @@ body {
   color: #fff;
   border: none;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   font-weight: 500;
   cursor: pointer;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 /* 7-Day Forecast Strip */
@@ -1867,17 +1895,17 @@ body {
 
 .wx-strip-label {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 「七日預報」章節印記 */
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   color: var(--color-ink-muted);
 }
 
 .wx-strip-hint {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px */
   color: var(--color-ink-muted);
   opacity: 0.4;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .wx-days {
@@ -1939,16 +1967,16 @@ body {
 .wx-day-date em {
   font-family: var(--font-display);
   font-style: normal;
-  font-size: 1.125rem;
+  font-size: var(--text-md); /* 17px — 日期數字 */
   font-weight: 700;
   color: var(--color-ink);
 }
 
 .wx-day-date small {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 星期幾縮寫 */
   font-weight: 500;
   color: var(--color-ink-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .wx-day.is-active .wx-day-date em,
@@ -1957,14 +1985,14 @@ body {
 }
 
 .wx-day-icon {
-  font-size: 1.25rem;
+  font-size: var(--text-lg); /* 20px — 天氣圖示 */
   line-height: 1;
 }
 
 .wx-day-temps {
   display: flex;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 最高/最低溫 */
 }
 
 .wx-day-hi {
@@ -1983,7 +2011,7 @@ body {
 }
 
 .wx-day-rain {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 降雨機率 badge */
   font-weight: 600;
   color: var(--color-indigo);
   background: rgba(26, 54, 93, 0.06);
@@ -2007,9 +2035,9 @@ body {
 }
 
 .wx-ai-empty p {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   color: var(--color-ink-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .wx-ai-error {
@@ -2027,10 +2055,10 @@ body {
   color: var(--color-indigo);
   border: 1px solid var(--color-indigo);
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px */
   cursor: pointer;
   transition: all 0.2s;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .wx-ai-error button:hover {
@@ -2046,11 +2074,11 @@ body {
 .wx-detail-label {
   text-align: center;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-md); /* 17px — 日期詳細標題 */
   font-weight: 600;
   color: var(--color-ink);
   margin-bottom: var(--spacing-lg);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .wx-detail-cond {
@@ -2077,7 +2105,8 @@ body {
 
 .wx-detail-temp-num {
   font-family: var(--font-display);
-  font-size: 3.25rem;
+  /* clamp: 最小 2.375rem / 理想 7vw / 最大 3.5rem */
+  font-size: clamp(2.375rem, 7vw, 3.5rem);
   font-weight: 800;
   line-height: 1;
 }
@@ -2091,9 +2120,9 @@ body {
 }
 
 .wx-detail-temp-tag {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 最高/最低標籤 */
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.15em;
   color: var(--color-ink-muted);
 }
 
@@ -2120,8 +2149,8 @@ body {
 }
 
 .wx-detail-quote p {
-  font-size: 1rem;
-  line-height: 1.85;
+  font-size: var(--text-base); /* 15px — AI 天氣總結內文 */
+  line-height: 1.9;
   margin: 0;
 }
 
@@ -2145,22 +2174,22 @@ body {
 
 .wx-detail-metric-val {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 氣象數值 */
   font-weight: 700;
   color: var(--color-ink);
 }
 
 .wx-detail-metric-val small {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 單位 */
   font-weight: 400;
   color: var(--color-ink-muted);
   margin-left: 1px;
 }
 
 .wx-detail-metric-lbl {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 體感/降雨/UV 等標籤 */
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: var(--color-ink-muted);
 }
 
@@ -2171,9 +2200,9 @@ body {
 
 .wx-detail-hourly-label {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 「每三小時預報」章節印記 */
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   color: var(--color-ink-muted);
   margin-bottom: var(--spacing-md);
 }
@@ -2192,14 +2221,14 @@ body {
 }
 
 .wx-ai-hourly-time {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 時間戳 */
   color: var(--color-ink-muted);
   font-weight: 500;
 }
 
 .wx-ai-hourly-temp {
   font-family: var(--font-display);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 每時溫度 */
   font-weight: 600;
   color: var(--color-ink);
 }
@@ -2221,7 +2250,7 @@ body {
 }
 
 .wx-ai-hourly-precip {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 降雨機率 */
   color: var(--color-indigo-light);
   font-weight: 600;
 }
@@ -2233,8 +2262,8 @@ body {
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
   color: var(--color-ink-muted);
-  font-size: 0.875rem;
-  letter-spacing: 0.03em;
+  font-size: var(--text-sm); /* 13px */
+  letter-spacing: 0.04em;
 }
 
 .wx-ai-inline-loader .wx-spinner {
@@ -2251,9 +2280,9 @@ body {
 
 .wx-detail-outfit h3 {
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 「穿搭建議」章節印記 */
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   color: var(--color-indigo);
   margin: 0 0 var(--spacing-md);
 }
@@ -2271,17 +2300,17 @@ body {
 }
 
 .wx-detail-outfit-item label {
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 上身/下身/鞋類/配件 標籤 */
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   color: var(--color-indigo-light);
 }
 
 .wx-detail-outfit-item p {
-  font-size: 1rem;
+  font-size: var(--text-base); /* 15px — 穿搭建議內文 */
   color: var(--color-ink);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .wx-detail-outfit-acc {
@@ -2298,7 +2327,7 @@ body {
   padding: 4px 12px;
   background: rgba(26, 54, 93, 0.04);
   color: var(--color-ink);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 配件 tag */
   font-weight: 500;
   border-radius: 14px;
 }
@@ -2312,9 +2341,9 @@ body {
   margin-top: var(--spacing-md);
   background: rgba(196, 150, 58, 0.05);
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 13px — 警示文字 */
   color: var(--color-ink-light);
-  line-height: 1.6;
+  line-height: 1.65;
   border-left: 2px solid var(--color-gold);
 }
 
@@ -2326,7 +2355,7 @@ body {
   height: 16px;
   background: var(--color-gold);
   color: #fff;
-  font-size: 0.5625rem;
+  font-size: 0.5625rem; /* 9px — 驚嘆號，保持原尺寸 */
   font-weight: 700;
   border-radius: 50%;
   flex-shrink: 0;
@@ -2336,10 +2365,10 @@ body {
 /* Weather Footer */
 .wx-footer {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: var(--text-micro); /* 11px — 資料來源印記 */
   color: var(--color-ink-muted);
   opacity: 0.35;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   margin-top: var(--spacing-xl);
 }
 
@@ -2347,17 +2376,13 @@ body {
    Responsive
    ======================================== */
 @media (max-width: 480px) {
-  .wx-hero-temp-num {
-    font-size: 4.5rem;
-  }
+  /* wx-hero-temp-num 已改用 clamp()，無需覆寫 */
 
   .wx-hero-icon {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
   }
 
-  .wx-detail-temp-num {
-    font-size: 2.5rem;
-  }
+  /* wx-detail-temp-num 已改用 clamp()，無需覆寫 */
 
   .wx-detail-metrics {
     flex-wrap: wrap;
@@ -2372,21 +2397,11 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .wx-nav-btn {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-  }
-
-  .hero-title {
-    font-size: 1.875rem;
-    letter-spacing: 0.02em;
-  }
+  /* hero-title 已改用 clamp()，無需覆寫 */
 }
 
 @media (min-width: 768px) {
-  .hero-title {
-    font-size: 3rem;
-  }
+  /* hero-title 已改用 clamp()，無需覆寫 */
 
   .phrase-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2396,9 +2411,7 @@ body {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .wx-hero-temp-num {
-    font-size: 7rem;
-  }
+  /* wx-hero-temp-num 已改用 clamp()，無需覆寫 */
 
   .wx-day {
     width: 76px;
