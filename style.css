@@ -1070,17 +1070,25 @@ body {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  background: var(--color-indigo);
-  color: white;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-lg);
+  /* 細頂線取代滿版色塊，作為當日收尾的安靜分隔 */
+  border-top: 1px solid rgba(26, 54, 93, 0.10);
   margin-top: var(--spacing-xl);
-  font-size: var(--text-base); /* 15px */
-  letter-spacing: 0.03em;
+  padding-top: var(--spacing-md);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm); /* 13px — 編輯注記層級，不與景點內文搶奪視線 */
+  letter-spacing: 0.04em;
+}
+
+.accommodation-note strong {
+  color: var(--color-indigo);
+  font-weight: 600;
+  font-family: var(--font-display);
 }
 
 .accommodation-icon {
-  font-size: var(--text-md); /* 17px */
+  font-size: var(--text-base); /* 15px — 圖示縮小，與注記文字等重 */
+  opacity: 0.5;
+  flex-shrink: 0;
 }
 
 /* ========================================
