@@ -27,16 +27,26 @@
   /*
    * ─── Typography Scale ─────────────────────────────────────────────────────
    *
-   *  --text-micro  0.6875rem  11px  章節英文小字、badge、nav label、真正的印記文字
-   *  --text-xs     0.75rem    12px  日期戳記、時間戳、分隔提示
-   *  --text-sm     0.8125rem  13px  次要說明、caption、表單標籤、工具提示
+   *  --text-micro  0.6875rem  11px  【純裝飾印記】section-title-jp、footer-author、
+   *                                  wx-footer、wx-strip-label、wx-detail-hourly-label、
+   *                                  wx-detail-outfit h3、hotel-expand-hint、
+   *                                  hotel-nights badge。
+   *                                  ⚠️ 禁用於互動元素、功能性數值、可操作標籤。
+   *
+   *  --text-xs     0.75rem    12px  【最小功能文字】日期/時間戳記、氣象數值輔助標籤
+   *                                  （體感/降雨/UV…）、最高/最低溫標籤、7日卡溫度、
+   *                                  底部導覽 label、羅馬拼音、hero 副標。
+   *
+   *  --text-sm     0.8125rem  13px  次要說明、caption、tab 文字、地點選擇器按鈕、
+   *                                  緊急聯絡標題/說明、機場全名、流程節點標籤。
+   *
    *  --text-base   0.9375rem  15px  主要內文（印刷質感 body）
-   *  --text-md     1.0625rem  17px  強調內文、卡片描述
-   *  --text-lg     1.25rem    20px  卡片標題、景點名
-   *  --text-xl     1.5rem     24px  子區塊標題
+   *  --text-md     1.0625rem  17px  強調內文、卡片標題、景點名、飯店名稱
+   *  --text-lg     1.25rem    20px  日語短句、Footer 主標、每日行程流
+   *  --text-xl     1.5rem     24px  每日標題
    *  --text-2xl    1.875rem   30px  Section 標題（editorial impact）
-   *  --text-3xl    2rem       32px  航班代碼等大型數字
-   *  --text-hero   clamp      fluid 英雄標題
+   *  --text-3xl    2rem       32px  機場代碼等大型錨點數字
+   *  --text-hero   clamp      fluid 英雄標題（clamp 流暢響應）
    *
    * ──────────────────────────────────────────────────────────────────────────
    */
@@ -185,7 +195,7 @@ body {
 
 .bottom-nav-label {
   font-family: var(--font-sans);
-  font-size: var(--text-micro); /* 11px — 印記文字，日系設計慣用極小 label */
+  font-size: var(--text-xs); /* 12px — 互動導覽 label，11px 在手機操作中辨識度不足 */
   font-weight: 500;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -310,7 +320,7 @@ body {
 }
 
 .hero-duration {
-  font-size: var(--text-micro); /* 11px — 副標印記 */
+  font-size: var(--text-xs); /* 12px — 疊加照片上，11px 在戶外光線下對比不足 */
   color: rgba(248, 215, 215, 0.85);
   font-weight: 400;
   letter-spacing: 0.2em;
@@ -461,7 +471,7 @@ body {
 }
 
 .flight-name {
-  font-size: var(--text-xs); /* 12px — 機場全名輔助標記 */
+  font-size: var(--text-sm); /* 13px — 機場全名，登機關鍵資訊，行李箱旁查票需清晰 */
   color: var(--color-ink-muted);
   letter-spacing: 0.03em;
 }
@@ -1301,7 +1311,7 @@ body {
 
 .emergency-title {
   font-family: var(--font-display);
-  font-size: var(--text-xs); /* 12px — 緊急類型標籤 */
+  font-size: var(--text-sm); /* 13px — 緊急類型標籤，情境緊張時需快速辨識 */
   font-weight: 500;
   margin-bottom: var(--spacing-sm);
   opacity: 0.8;
@@ -1317,7 +1327,7 @@ body {
 }
 
 .emergency-desc {
-  font-size: var(--text-xs); /* 12px — 補充說明 */
+  font-size: var(--text-sm); /* 13px — 補充說明，緊急情境下 12px 反應太慢 */
   opacity: 0.6;
   letter-spacing: 0.03em;
 }
@@ -1375,7 +1385,7 @@ body {
 }
 
 .phrase-romaji {
-  font-size: var(--text-micro); /* 11px — 羅馬拼音印記，刻意纖細 */
+  font-size: var(--text-xs); /* 12px — 羅馬拼音，旅途現場查發音的功能性文字，11px 需湊近看 */
   color: var(--color-ink-muted);
   margin-bottom: var(--spacing-sm);
   font-style: italic;
@@ -1699,7 +1709,7 @@ body {
   flex: 1;
   padding: 7px 12px;
   font-family: var(--font-display);
-  font-size: var(--text-micro); /* 11px — 地點選擇器標籤，纖細精緻 */
+  font-size: var(--text-sm); /* 13px — 互動地點選擇器，11px 在 pill 內辨識度不足 */
   font-weight: 500;
   color: var(--color-ink-muted);
   background: transparent;
@@ -1853,7 +1863,7 @@ body {
 }
 
 .wx-stat-lbl {
-  font-size: var(--text-micro); /* 11px — 體感/濕度/風速標籤 */
+  font-size: var(--text-xs); /* 12px — 體感/濕度/風速標籤，直接輔助數值，11px 易混淆 */
   letter-spacing: 0.12em;
   color: var(--color-ink-muted);
 }
@@ -1992,7 +2002,7 @@ body {
 .wx-day-temps {
   display: flex;
   gap: 4px;
-  font-size: var(--text-micro); /* 11px — 最高/最低溫 */
+  font-size: var(--text-xs); /* 12px — 最高/最低溫，主要氣象數據，戶外陽光下 11px 幾乎不可辨 */
 }
 
 .wx-day-hi {
@@ -2120,7 +2130,7 @@ body {
 }
 
 .wx-detail-temp-tag {
-  font-size: var(--text-micro); /* 11px — 最高/最低標籤 */
+  font-size: var(--text-xs); /* 12px — 最高/最低標籤，輔助主溫度數字，需在手機上清晰對應 */
   font-weight: 500;
   letter-spacing: 0.15em;
   color: var(--color-ink-muted);
@@ -2187,7 +2197,7 @@ body {
 }
 
 .wx-detail-metric-lbl {
-  font-size: var(--text-micro); /* 11px — 體感/降雨/UV 等標籤 */
+  font-size: var(--text-xs); /* 12px — 降雨/UV/風速等標籤，輔助數值判讀，11px 手機上難對應 */
   font-weight: 500;
   letter-spacing: 0.12em;
   color: var(--color-ink-muted);
