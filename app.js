@@ -946,7 +946,7 @@ function renderDayContent(day) {
   const accommodationHtml = data.accommodation ? `
     <div class="accommodation-note">
       <span class="accommodation-icon">🏨</span>
-      <span>住宿：${data.accommodation}</span>
+      <span>今晚住宿：<strong>${data.accommodation}</strong></span>
     </div>
   ` : '';
 
