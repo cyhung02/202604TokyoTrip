@@ -48,9 +48,7 @@ const itinerary = [
       }
     ],
     food: [
-      { place: '九段下', name: 'Iidabashi Saryo 日式定食' },
-      { place: '目黑川沿岸', name: '章魚燒、炒麵與串燒等攤販小吃' },
-      { place: '中目黑', name: '車站周邊居酒屋與特色餐廳' }
+      { place: '中目黑', name: '**WE ARE THE FARM 目黒** 自家農園有機野菜料理，目黒駅徒步 3 分，17:00–23:00，建議預約' }
     ],
     transport: [],
     accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
