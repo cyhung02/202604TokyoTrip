@@ -87,8 +87,8 @@ const itinerary = [
       }
     ],
     food: [
-      { place: '淺草', name: '「尾張屋」天婦羅蕎麥麵、「色川」鰻魚飯' },
-      { place: '阿美橫丁', name: '「大統領」燒肉與串烤店' }
+      { place: '淺草', name: '**Tempura Asakusa SAKURA** 天婦羅・和牛天丼，提供素食、無麩質、Halal 選項，浅草駅 A4 出口正對面，12:00–20:30，建議預約' },
+      { place: '淺草', name: '**権八 浅草吾妻橋** 手打蕎麥・串燒・天丼，提供素食與無麩質選項，隅田川河景，浅草駅 4 番出口徒步 30 秒，11:30–23:00' }
     ],
     transport: [],
     accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
