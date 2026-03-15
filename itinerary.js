@@ -10,7 +10,9 @@ const itinerary = [
     flow: ['抵達成田機場', '入境領取行李', '購買 Suica/PASMO', '搭車前往東京站', '辦理入住'],
     spots: [],
     food: [
-      { place: '東京站', name: '**GRANSTA TOKYO** 地下街或八重洲地下街，日式便當與甜點選擇多樣' }
+      { place: '東京站', name: '**GRANSTA TOKYO** 地下街或八重洲地下街，日式便當與甜點選擇多樣' },
+      { place: '東京站', name: '**そらのいろNIPPON** 醬油・蔬食拉麵，東京駅一番街 B1F 拉麵街，09:00–23:00' },
+      { place: '東京站', name: '**T\'s たんたん** 全素擔擔麵，GRANSTA 東京內，10:00–22:00' }
     ],
     transport: [
       {
@@ -46,9 +48,7 @@ const itinerary = [
       }
     ],
     food: [
-      { place: '九段下', name: 'Iidabashi Saryo 日式定食' },
-      { place: '目黑川沿岸', name: '章魚燒、炒麵與串燒等攤販小吃' },
-      { place: '中目黑', name: '車站周邊居酒屋與特色餐廳' },
+      { place: '中目黑', name: '**WE ARE THE FARM 目黒** 自家農園有機野菜料理，目黒駅徒步 3 分，17:00–23:00，建議預約' },
       { place: '中目黑', name: '[パティスリー カカオエット・パリ](https://tabelog.com/tokyo/A1317/A131701/13039525/)　食べログ 3.76，法式甜點專門店，距目黑川約 250m' },
       { place: '中目黑', name: '[スターバックス リザーブ ロースタリー トウキョウ](https://tabelog.com/tokyo/A1317/A131701/13231942/)　食べログ 3.70，就在目黑川河岸旁，春季賞櫻絕佳視野' }
     ],
@@ -87,8 +87,8 @@ const itinerary = [
       }
     ],
     food: [
-      { place: '淺草', name: '「尾張屋」天婦羅蕎麥麵、「色川」鰻魚飯' },
-      { place: '阿美橫丁', name: '「大統領」燒肉與串烤店' }
+      { place: '淺草', name: '**Tempura Asakusa SAKURA** 天婦羅・和牛天丼，提供素食、無麩質、Halal 選項，浅草駅 A4 出口正對面，12:00–20:30，建議預約' },
+      { place: '淺草', name: '**権八 浅草吾妻橋** 手打蕎麥・串燒・天丼，提供素食與無麩質選項，隅田川河景，浅草駅 4 番出口徒步 30 秒，11:30–23:00' }
     ],
     transport: [],
     accommodation: 'スーパーホテル Premier 東京駅八重洲中央口'
