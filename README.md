@@ -1,5 +1,7 @@
 # 東京・箱根・富士山 2026 春季旅行手冊
 
+![Version](https://img.shields.io/badge/version-2.12.6-blue) ![PWA](https://img.shields.io/badge/PWA-ready-brightgreen) ![License](https://img.shields.io/badge/license-MIT-green)
+
 一個為團員打造的 PWA 旅遊手冊，可在手機上離線查看完整行程。
 涵蓋東京、鎌倉、箱根、富士山河口湖四大區域，行程精心規劃，支援一鍵安裝至手機桌面。
 
@@ -250,7 +252,7 @@ npm run generate-icons
 ├── style.css               # 樣式表（和風美學設計，~55KB）
 ├── app.js                  # 互動邏輯（行李清單、日文短句複製等，~36KB）
 ├── data.js                 # 行程資料層（結構化景點、交通、餐廳資料，~24KB）
-├── sw.js                   # Service Worker（離線快取）
+├── sw.js                   # Service Worker（離線快取，v2.12.6）
 ├── manifest.json           # PWA 設定檔
 ├── icons/                  # App 圖示
 │   ├── icon.svg            # 圖示原始檔
