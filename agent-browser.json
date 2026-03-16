@@ -1,0 +1,4 @@
+{
+  "proxy": "http://127.0.0.1:8888",
+  "proxyBypass": "localhost,127.0.0.1"
+}
