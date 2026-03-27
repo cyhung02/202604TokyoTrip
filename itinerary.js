@@ -2,6 +2,15 @@
 // Separated from data.js for maintainability
 // jpName: Japanese Wikipedia article title for image lookup
 
+// === food 欄位寫作規範 ===
+// 使用 tabelog-search 取得搜尋結果後，將餐廳資訊寫入 food 欄位時，簡介須符合以下規範：
+// - 繁體中文
+// - 語氣自然，像旅遊部落客推薦，不要條列評分（食べログ 3.xx）、百名店、幾則評論等數字資訊
+// - 重點放在餐點特色、空間氛圍、為何值得一吃
+// - 優先參考並改寫 Tabelog 的 intro.body 與口コミ 內容，讓描述有真實感與根據
+// - 實用資訊（營業時間、預算、注意事項）放在描述末尾補充即可
+// ========================
+
 const itinerary = [
   {
     day: 1,
