@@ -37,14 +37,14 @@ const installDismiss = document.getElementById('install-dismiss');
 let currentDay = 1;
 let currentInfo = 'sakura';
 let deferredPrompt = null;
-let checkedItems = lsGet('checkedItems', {});
-let customItems = lsGet('customItems', []);
-let weatherCache = lsGet('weatherCache', {});
-let aiAdviceCache = lsGet('aiAdviceCache', {});
+let checkedItems = lsGet(LS_CHECKED_ITEMS, {});
+let customItems = lsGet(LS_CUSTOM_ITEMS, []);
+let weatherCache = lsGet(LS_WEATHER_CACHE, {});
+let aiAdviceCache = lsGet(LS_AI_ADVICE_CACHE, {});
 let currentWeatherLocation = 'tokyo';
 let selectedWeatherDate = null;
 let allWeatherData = {};
-let wikiImageCache = lsGet('wikiImageCache', {});
+let wikiImageCache = lsGet(LS_WIKI_IMAGE_CACHE, {});
 const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 let itinerary = null;
 
@@ -57,6 +57,13 @@ const EN_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCROLL_PROGRESS_FACTOR = 0.15;
 const NAV_BG_ALPHA_MAX = 0.82;
 const NAV_BORDER_ALPHA_MAX = 0.08;
+
+// localStorage keys — single source of truth to avoid silent typo bugs
+const LS_CHECKED_ITEMS = 'checkedItems';
+const LS_CUSTOM_ITEMS = 'customItems';
+const LS_WEATHER_CACHE = 'weatherCache';
+const LS_AI_ADVICE_CACHE = 'aiAdviceCache';
+const LS_WIKI_IMAGE_CACHE = 'wikiImageCache';
 
 // Safe localStorage helpers — guards against JSON.parse errors and QuotaExceededError
 function lsGet(key, fallback) {
@@ -172,7 +179,9 @@ async function fetchWeatherForLocation(locationKey) {
   }
   
   const data = await response.json();
-  if (!data.daily || !data.hourly || !data.current) {
+  if (!data.daily || !data.daily.time?.length ||
+      !data.hourly || !data.hourly.time?.length ||
+      !data.current) {
     throw new Error('Unexpected API response structure');
   }
   data.location_name = location.name;
@@ -268,17 +277,28 @@ async function loadWeatherData(locationKey) {
   try {
     let data;
     const cacheKey = `weather_${locationKey}`;
-    const cached = weatherCache[cacheKey];
     const now = Date.now();
-    
-    if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
+
+    // Evict expired entries from weatherCache to keep localStorage lean
+    for (const key of Object.keys(weatherCache)) {
+      if ((now - weatherCache[key].timestamp) >= CACHE_TTL_MS) {
+        delete weatherCache[key];
+      }
+    }
+
+    const cached = weatherCache[cacheKey];
+    if (cached) {
       data = cached.data;
     } else {
       data = await fetchWeatherForLocation(locationKey);
       weatherCache[cacheKey] = { data, timestamp: now };
-      lsSet('weatherCache', weatherCache);
+      lsSet(LS_WEATHER_CACHE, weatherCache);
     }
-    
+
+    // allWeatherData is in-memory only; cap to known location count to avoid unbounded growth
+    if (!Object.keys(WEATHER_LOCATIONS).includes(locationKey)) {
+      throw new Error(`Unknown location key: ${locationKey}`);
+    }
     allWeatherData[locationKey] = data;
     renderCurrentWeather(data);
     render7DayForecast(data, locationKey);
@@ -562,7 +582,7 @@ async function fetchWeatherAIAdvice(dayInput) {
     const advice = await response.json();
     
     aiAdviceCache[cacheKey] = { data: advice, timestamp: now };
-    lsSet('aiAdviceCache', aiAdviceCache);
+    lsSet(LS_AI_ADVICE_CACHE, aiAdviceCache);
     
     renderWeatherAIAdvice(advice, dayInput);
     
@@ -718,14 +738,14 @@ function addCustomItem(text) {
   if (!trimmed) return;
   if (trimmed.length > 50) { showToast('項目名稱不能超過 50 字'); return; }
   customItems.push(trimmed);
-  lsSet('customItems', customItems);
+  lsSet(LS_CUSTOM_ITEMS, customItems);
   renderCustomItems();
   showToast('已新增項目');
 }
 
 function deleteCustomItem(index) {
   customItems.splice(index, 1);
-  lsSet('customItems', customItems);
+  lsSet(LS_CUSTOM_ITEMS, customItems);
 
   // Re-index checked states so they stay aligned with the array after removal
   const updated = {};
@@ -743,7 +763,7 @@ function deleteCustomItem(index) {
     }
   }
   checkedItems = updated;
-  lsSet('checkedItems', checkedItems);
+  lsSet(LS_CHECKED_ITEMS, checkedItems);
 
   renderCustomItems();
   showToast('已刪除項目');
@@ -896,7 +916,7 @@ async function fetchWikiImages(jpNames) {
       }
     }
 
-    lsSet('wikiImageCache', wikiImageCache);
+    lsSet(LS_WIKI_IMAGE_CACHE, wikiImageCache);
   } catch (error) {
     console.error('Wikipedia image fetch error:', error);
   }
@@ -1240,7 +1260,7 @@ infoContent.addEventListener('click', (e) => {
     item.classList.toggle('checked');
     const key = item.dataset.item;
     checkedItems[key] = item.classList.contains('checked');
-    lsSet('checkedItems', checkedItems);
+    lsSet(LS_CHECKED_ITEMS, checkedItems);
   }
 });
 
