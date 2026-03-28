@@ -34,20 +34,6 @@ const installDismiss = document.getElementById('install-dismiss');
 // State
 // ========================================
 
-let currentDay = 1;
-let currentInfo = 'sakura';
-let deferredPrompt = null;
-let checkedItems = lsGet(LS_CHECKED_ITEMS, {});
-let customItems = lsGet(LS_CUSTOM_ITEMS, []);
-let weatherCache = lsGet(LS_WEATHER_CACHE, {});
-let aiAdviceCache = lsGet(LS_AI_ADVICE_CACHE, {});
-let currentWeatherLocation = 'tokyo';
-let selectedWeatherDate = null;
-let allWeatherData = {};
-let wikiImageCache = lsGet(LS_WIKI_IMAGE_CACHE, {});
-const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
-let itinerary = null;
-
 // ========================================
 // Constants
 // ========================================
@@ -64,6 +50,20 @@ const LS_CUSTOM_ITEMS = 'customItems';
 const LS_WEATHER_CACHE = 'weatherCache';
 const LS_AI_ADVICE_CACHE = 'aiAdviceCache';
 const LS_WIKI_IMAGE_CACHE = 'wikiImageCache';
+
+let currentDay = 1;
+let currentInfo = 'sakura';
+let deferredPrompt = null;
+let checkedItems = lsGet(LS_CHECKED_ITEMS, {});
+let customItems = lsGet(LS_CUSTOM_ITEMS, []);
+let weatherCache = lsGet(LS_WEATHER_CACHE, {});
+let aiAdviceCache = lsGet(LS_AI_ADVICE_CACHE, {});
+let currentWeatherLocation = 'tokyo';
+let selectedWeatherDate = null;
+let allWeatherData = {};
+let wikiImageCache = lsGet(LS_WIKI_IMAGE_CACHE, {});
+const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+let itinerary = null;
 
 // Safe localStorage helpers — guards against JSON.parse errors and QuotaExceededError
 function lsGet(key, fallback) {
