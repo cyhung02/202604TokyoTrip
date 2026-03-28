@@ -1,6 +1,6 @@
 // Service Worker for Tokyo Trip PWA
 
-const APP_VERSION = '2.12.16';
+const APP_VERSION = '2.13.0';
 const CACHE_NAME = `tokyo-trip-v${APP_VERSION}`;
 const FONT_CACHE = 'tokyo-trip-fonts-v3';
 
@@ -9,7 +9,7 @@ const ASSETS = [
   './index.html',
   './style.css',
   './data.js',
-  './itinerary.js',
+  './itinerary.json',
   './app.js',
   './manifest.json',
   './icons/icon-192.png',

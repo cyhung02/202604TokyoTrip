@@ -37,6 +37,7 @@ let selectedWeatherDate = null;
 let allWeatherData = {};
 let wikiImageCache = JSON.parse(localStorage.getItem('wikiImageCache') || '{}');
 const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+let itinerary = null;
 
 // Weather API configuration (Open-Meteo Forecast API)
 // Uses best_match model which combines JMA MSM (short-term) and ECMWF (medium-term)
@@ -887,6 +888,7 @@ function injectSpotImage(card, imageUrl) {
 }
 
 function renderDayContent(day) {
+  if (!itinerary) return;
   const data = itinerary.find(d => d.day === day);
   if (!data) return;
 
@@ -1223,22 +1225,37 @@ installDismiss.addEventListener('click', () => {
 // Initialization
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Auto-select today's day if within trip dates
   currentDay = getTodayDay();
-  
+
   // Update day tabs to show dates instead of "Day X"
   updateDayTabsWithDates();
-  
+
   renderHotels();
-  renderDayContent(currentDay);
-  renderInfoContent(currentInfo);
-  renderPhrases();
   setupBottomNav();
-  
+
   // Initialize weather section
   setupWeatherLocationSelector();
   initWeatherSection();
+
+  // Defer non-critical below-fold renders until browser is idle
+  const requestIdle = window.requestIdleCallback || (cb => setTimeout(cb, 0));
+  requestIdle(() => {
+    renderInfoContent(currentInfo);
+    renderPhrases();
+  });
+
+  // Load itinerary async — does not block initial render
+  dayContent.innerHTML = '<div class="day-loading">載入行程中…</div>';
+  try {
+    const res = await fetch('itinerary.json');
+    itinerary = await res.json();
+    renderDayContent(currentDay);
+  } catch (e) {
+    console.error('Failed to load itinerary:', e);
+    dayContent.innerHTML = '<p class="day-loading">行程載入失敗，請重新整理頁面。</p>';
+  }
   
   // Pre-load speech synthesis voices
   if ('speechSynthesis' in window) {
