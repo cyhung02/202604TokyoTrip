@@ -5,6 +5,15 @@
 // Configure marked
 marked.use({ breaks: true });
 
+// Parse markdown from trusted-but-validated content (itinerary.json).
+// Strip any raw HTML tags in the source before handing to marked,
+// so injected <script>/<img onerror=…> etc. cannot execute.
+function safeParse(md) {
+  if (!md) return '';
+  const stripped = String(md).replace(/<[^>]*>/g, '');
+  return marked.parse(stripped);
+}
+
 // ========================================
 // DOM Elements
 // ========================================
@@ -28,14 +37,14 @@ const installDismiss = document.getElementById('install-dismiss');
 let currentDay = 1;
 let currentInfo = 'sakura';
 let deferredPrompt = null;
-let checkedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
-let customItems = JSON.parse(localStorage.getItem('customItems') || '[]');
-let weatherCache = JSON.parse(localStorage.getItem('weatherCache') || '{}');
-let aiAdviceCache = JSON.parse(localStorage.getItem('aiAdviceCache') || '{}');
+let checkedItems = lsGet('checkedItems', {});
+let customItems = lsGet('customItems', []);
+let weatherCache = lsGet('weatherCache', {});
+let aiAdviceCache = lsGet('aiAdviceCache', {});
 let currentWeatherLocation = 'tokyo';
 let selectedWeatherDate = null;
 let allWeatherData = {};
-let wikiImageCache = JSON.parse(localStorage.getItem('wikiImageCache') || '{}');
+let wikiImageCache = lsGet('wikiImageCache', {});
 const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 let itinerary = null;
 
@@ -48,6 +57,24 @@ const EN_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCROLL_PROGRESS_FACTOR = 0.15;
 const NAV_BG_ALPHA_MAX = 0.82;
 const NAV_BORDER_ALPHA_MAX = 0.08;
+
+// Safe localStorage helpers — guards against JSON.parse errors and QuotaExceededError
+function lsGet(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function lsSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // QuotaExceededError or other storage errors — silently ignore
+  }
+}
 
 // Escape HTML special characters to prevent XSS when rendering untrusted text
 function escapeHtml(str) {
@@ -170,11 +197,11 @@ function buildDailyAIInput(rawData, dateStr) {
     .filter(item => item.time.startsWith(dateStr))
     .map(item => ({
       time: hourly.time[item.index],
-      is_day: hourly.is_day[item.index],
-      temperature_c: hourly.temperature_2m[item.index],
-      apparent_temperature_c: hourly.apparent_temperature[item.index],
-      precip_probability_pct: hourly.precipitation_probability[item.index],
-      freezing_level_height_m: hourly.freezing_level_height[item.index]
+      is_day: hourly.is_day?.[item.index],
+      temperature_c: hourly.temperature_2m?.[item.index],
+      apparent_temperature_c: hourly.apparent_temperature?.[item.index],
+      precip_probability_pct: hourly.precipitation_probability?.[item.index],
+      freezing_level_height_m: hourly.freezing_level_height?.[item.index]
     }));
   
   const weatherCode = daily.weather_code[dateIndex];
@@ -229,7 +256,9 @@ async function initWeatherSection() {
 async function loadWeatherData(locationKey) {
   const currentCard = document.getElementById('weather-current-card');
   const grid = document.getElementById('weather-7day-grid');
-  
+
+  if (!currentCard || !grid) return;
+
   currentCard.innerHTML = `<div class="wx-hero-loader"><div class="wx-spinner"></div></div>`;
   grid.innerHTML = `<div class="wx-days-loader"><div class="wx-spinner"></div></div>`;
   
@@ -247,7 +276,7 @@ async function loadWeatherData(locationKey) {
     } else {
       data = await fetchWeatherForLocation(locationKey);
       weatherCache[cacheKey] = { data, timestamp: now };
-      localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
+      lsSet('weatherCache', weatherCache);
     }
     
     allWeatherData[locationKey] = data;
@@ -533,7 +562,7 @@ async function fetchWeatherAIAdvice(dayInput) {
     const advice = await response.json();
     
     aiAdviceCache[cacheKey] = { data: advice, timestamp: now };
-    localStorage.setItem('aiAdviceCache', JSON.stringify(aiAdviceCache));
+    lsSet('aiAdviceCache', aiAdviceCache);
     
     renderWeatherAIAdvice(advice, dayInput);
     
@@ -689,14 +718,14 @@ function addCustomItem(text) {
   if (!trimmed) return;
   if (trimmed.length > 50) { showToast('項目名稱不能超過 50 字'); return; }
   customItems.push(trimmed);
-  localStorage.setItem('customItems', JSON.stringify(customItems));
+  lsSet('customItems', customItems);
   renderCustomItems();
   showToast('已新增項目');
 }
 
 function deleteCustomItem(index) {
   customItems.splice(index, 1);
-  localStorage.setItem('customItems', JSON.stringify(customItems));
+  lsSet('customItems', customItems);
 
   // Re-index checked states so they stay aligned with the array after removal
   const updated = {};
@@ -714,7 +743,7 @@ function deleteCustomItem(index) {
     }
   }
   checkedItems = updated;
-  localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+  lsSet('checkedItems', checkedItems);
 
   renderCustomItems();
   showToast('已刪除項目');
@@ -867,7 +896,7 @@ async function fetchWikiImages(jpNames) {
       }
     }
 
-    localStorage.setItem('wikiImageCache', JSON.stringify(wikiImageCache));
+    lsSet('wikiImageCache', wikiImageCache);
   } catch (error) {
     console.error('Wikipedia image fetch error:', error);
   }
@@ -943,7 +972,7 @@ function renderDayContent(day) {
             </a>
           </div>
           ${spot.hours ? `<div class="spot-hours">${spot.hours}</div>` : ''}
-          <div class="spot-desc markdown-content">${marked.parse(spot.desc)}</div>
+          <div class="spot-desc markdown-content">${safeParse(spot.desc)}</div>
         </div>
       `).join('')}
     </div>
@@ -956,7 +985,7 @@ function renderDayContent(day) {
         ${data.food.map(f => `
           <div class="food-item">
             <span class="food-place">${f.place}</span>
-            <span class="food-name markdown-content">${marked.parse(f.name)}</span>
+            <span class="food-name markdown-content">${safeParse(f.name)}</span>
           </div>
         `).join('')}
       </div>
@@ -970,7 +999,7 @@ function renderDayContent(day) {
         ${data.transport.map(t => `
           <div class="transport-item">
             <span class="transport-name">${t.name}</span>
-            <span class="transport-desc markdown-content">${marked.parse(t.desc)}</span>
+            <span class="transport-desc markdown-content">${safeParse(t.desc)}</span>
           </div>
         `).join('')}
       </div>
@@ -1211,7 +1240,7 @@ infoContent.addEventListener('click', (e) => {
     item.classList.toggle('checked');
     const key = item.dataset.item;
     checkedItems[key] = item.classList.contains('checked');
-    localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+    lsSet('checkedItems', checkedItems);
   }
 });
 
