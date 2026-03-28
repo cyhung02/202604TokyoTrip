@@ -39,6 +39,27 @@ let wikiImageCache = JSON.parse(localStorage.getItem('wikiImageCache') || '{}');
 const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 let itinerary = null;
 
+// ========================================
+// Constants
+// ========================================
+
+const CACHE_TTL_MS = 15 * 60 * 1000;
+const EN_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const SCROLL_PROGRESS_FACTOR = 0.15;
+const NAV_BG_ALPHA_MAX = 0.82;
+const NAV_BORDER_ALPHA_MAX = 0.08;
+
+// Escape HTML special characters to prevent XSS when rendering untrusted text
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Weather API configuration (Open-Meteo Forecast API)
 // Uses best_match model which combines JMA MSM (short-term) and ECMWF (medium-term)
 const WEATHER_LOCATIONS = {
@@ -124,9 +145,12 @@ async function fetchWeatherForLocation(locationKey) {
   }
   
   const data = await response.json();
+  if (!data.daily || !data.hourly || !data.current) {
+    throw new Error('Unexpected API response structure');
+  }
   data.location_name = location.name;
   data.location_icon = location.icon;
-  
+
   return data;
 }
 
@@ -218,7 +242,7 @@ async function loadWeatherData(locationKey) {
     const cached = weatherCache[cacheKey];
     const now = Date.now();
     
-    if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
+    if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
       data = cached.data;
     } else {
       data = await fetchWeatherForLocation(locationKey);
@@ -303,11 +327,10 @@ function render7DayForecast(data, locationKey) {
   if (!grid || !data.daily) return;
   
   const daily = data.daily;
-  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+
   grid.innerHTML = daily.time.map((dateStr, index) => {
     const date = new Date(dateStr);
-    const dayChar = enDays[date.getDay()];
+    const dayChar = EN_DAYS[date.getDay()];
     const dateNum = date.getDate();
     const weather = getWeatherInfo(daily.weather_code[index]);
     const tempMax = Math.round(daily.temperature_2m_max[index]);
@@ -335,17 +358,16 @@ function render7DayForecast(data, locationKey) {
     `;
   }).join('');
   
-  // Add click handlers
-  grid.querySelectorAll('.wx-day').forEach(card => {
-    card.addEventListener('click', handleWeather7DayClick);
-  });
+  // Use event delegation to avoid accumulating listeners on re-render
+  grid.onclick = handleWeather7DayClick;
 }
 
 /**
  * Handle click on 7-day forecast card
  */
 function handleWeather7DayClick(e) {
-  const card = e.currentTarget;
+  const card = e.target.closest('.wx-day');
+  if (!card) return;
   const dateStr = card.dataset.date;
   const locationKey = card.dataset.location;
   
@@ -375,8 +397,7 @@ function renderWeatherDetail(dayInput) {
   const dateNum = date.getDate();
   const month = date.getMonth() + 1;
   const weather = getWeatherInfo(dayInput.weather_code);
-  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const dayChar = enDays[date.getDay()];
+  const dayChar = EN_DAYS[date.getDay()];
   
   const sunrise = dayInput.sunrise
     ? new Date(dayInput.sunrise).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -474,12 +495,8 @@ function showWeatherError() {
   const grid = document.getElementById('weather-7day-grid');
   
   if (currentCard) {
-    currentCard.innerHTML = `
-      <div class="wx-error">
-        <p>無法載入天氣</p>
-        <button onclick="loadWeatherData('${currentWeatherLocation}')">重試</button>
-      </div>
-    `;
+    currentCard.innerHTML = `<div class="wx-error"><p>無法載入天氣</p><button type="button" class="wx-retry-btn">重試</button></div>`;
+    currentCard.querySelector('.wx-retry-btn').addEventListener('click', () => loadWeatherData(currentWeatherLocation));
   }
   
   if (grid) {
@@ -499,7 +516,7 @@ async function fetchWeatherAIAdvice(dayInput) {
   const cached = aiAdviceCache[cacheKey];
   const now = Date.now();
   
-  if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
+  if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
     renderWeatherAIAdvice(cached.data, dayInput);
     return;
   }
@@ -532,29 +549,38 @@ async function fetchWeatherAIAdvice(dayInput) {
 function renderWeatherAIAdvice(advice, dayInput) {
   const summaryEl = document.getElementById('wx-ai-summary');
   if (summaryEl) {
-    summaryEl.innerHTML = `<p>${advice.summary}</p>`;
+    const p = document.createElement('p');
+    p.textContent = advice.summary;
+    summaryEl.innerHTML = '';
+    summaryEl.appendChild(p);
   }
-  
+
   const outfitEl = document.getElementById('wx-ai-outfit');
   if (outfitEl) {
+    // Remove any warning element left from a previous render
+    const prevWarning = outfitEl.nextElementSibling;
+    if (prevWarning && prevWarning.classList.contains('wx-detail-alert')) {
+      prevWarning.remove();
+    }
+
     const accessories = advice.accessories && advice.accessories.length > 0
-      ? advice.accessories.map(a => `<span>${a}</span>`).join('')
+      ? advice.accessories.map(a => `<span>${escapeHtml(a)}</span>`).join('')
       : '<span>—</span>';
-    
+
     outfitEl.innerHTML = `
       <h3>穿搭建議</h3>
       <div class="wx-detail-outfit-grid">
         <div class="wx-detail-outfit-item">
           <label>上身</label>
-          <p>${advice.top}</p>
+          <p>${escapeHtml(advice.top)}</p>
         </div>
         <div class="wx-detail-outfit-item">
           <label>下身</label>
-          <p>${advice.bottoms}</p>
+          <p>${escapeHtml(advice.bottoms)}</p>
         </div>
         <div class="wx-detail-outfit-item">
           <label>鞋類</label>
-          <p>${advice.footwear}</p>
+          <p>${escapeHtml(advice.footwear)}</p>
         </div>
         <div class="wx-detail-outfit-item wx-detail-outfit-acc">
           <label>配件</label>
@@ -562,11 +588,14 @@ function renderWeatherAIAdvice(advice, dayInput) {
         </div>
       </div>
     `;
-    
+
     if (advice.warning) {
       const warningEl = document.createElement('div');
       warningEl.className = 'wx-detail-alert';
-      warningEl.innerHTML = `<span>!</span>${advice.warning}`;
+      const icon = document.createElement('span');
+      icon.textContent = '!';
+      warningEl.appendChild(icon);
+      warningEl.appendChild(document.createTextNode(advice.warning));
       outfitEl.after(warningEl);
     }
   }
@@ -583,13 +612,8 @@ function showWeatherAIError(dayInput) {
   
   const outfitEl = document.getElementById('wx-ai-outfit');
   if (outfitEl) {
-    outfitEl.innerHTML = `
-      <h3>穿搭建議</h3>
-      <div class="wx-ai-error">
-        <p>讀取失敗</p>
-        <button onclick="retryWeatherAI()">重試</button>
-      </div>
-    `;
+    outfitEl.innerHTML = `<h3>穿搭建議</h3><div class="wx-ai-error"><p>讀取失敗</p><button type="button" class="wx-retry-btn">重試</button></div>`;
+    outfitEl.querySelector('.wx-retry-btn').addEventListener('click', retryWeatherAI);
   }
 }
 
@@ -654,15 +678,17 @@ function renderCustomItems() {
   container.innerHTML = customItems.map((item, index) => `
     <li class="checklist-item ${checkedItems['custom_' + index] ? 'checked' : ''}" data-item="custom_${index}">
       <span class="checklist-checkbox"></span>
-      <span class="custom-item-text">${item}</span>
+      <span class="custom-item-text">${escapeHtml(item)}</span>
       <button class="delete-item-btn" data-index="${index}" aria-label="刪除項目">×</button>
     </li>
   `).join('');
 }
 
 function addCustomItem(text) {
-  if (!text.trim()) return;
-  customItems.push(text.trim());
+  const trimmed = text.trim();
+  if (!trimmed) return;
+  if (trimmed.length > 50) { showToast('項目名稱不能超過 50 字'); return; }
+  customItems.push(trimmed);
   localStorage.setItem('customItems', JSON.stringify(customItems));
   renderCustomItems();
   showToast('已新增項目');
@@ -679,7 +705,8 @@ function deleteCustomItem(index) {
       updated[key] = checkedItems[key];
       continue;
     }
-    const i = parseInt(key.split('_')[1]);
+    const i = parseInt(key.split('_')[1], 10);
+    if (isNaN(i)) { updated[key] = checkedItems[key]; continue; }
     if (i < index) {
       updated[key] = checkedItems[key];
     } else if (i > index) {
@@ -723,15 +750,13 @@ function speakJapanese(text) {
 // ========================================
 
 function getTodayDay() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const tripStart = new Date(TRIP_START_DATE);
-  tripStart.setHours(0, 0, 0, 0);
-  
-  const diffTime = today.getTime() - tripStart.getTime();
+  // Use Asia/Tokyo timezone for both sides to avoid UTC offset issues
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+  const tripStartStr = TRIP_START_DATE.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+
+  const diffTime = new Date(todayStr).getTime() - new Date(tripStartStr).getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays >= 0 && diffDays < 8) {
     return diffDays + 1;
   }
@@ -740,9 +765,10 @@ function getTodayDay() {
 
 
 function renderHotels() {
+  if (!hotelTimeline) return;
   hotelTimeline.innerHTML = hotels.map(hotel => `
     <div class="hotel-card-wrapper">
-      <div class="hotel-card" onclick="this.classList.toggle('expanded')">
+      <div class="hotel-card">
         <div class="hotel-dates">
           <span>${hotel.checkIn} → ${hotel.checkOut}</span>
           <span class="hotel-nights">${hotel.nights} 晚</span>
@@ -762,7 +788,7 @@ function renderHotels() {
             <span class="hotel-detail-label">特色</span>
             <span class="hotel-detail-value">${hotel.features}</span>
           </div>
-          <a href="https://www.google.com/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener noreferrer" class="maps-btn maps-btn-full" onclick="event.stopPropagation()">
+          <a href="https://www.google.com/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener noreferrer" class="maps-btn maps-btn-full">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
@@ -774,6 +800,12 @@ function renderHotels() {
       </div>
     </div>
   `).join('');
+
+  hotelTimeline.addEventListener('click', (e) => {
+    if (e.target.closest('.maps-btn')) return;
+    const card = e.target.closest('.hotel-card');
+    if (card) card.classList.toggle('expanded');
+  });
 }
 
 // ========================================
@@ -794,7 +826,7 @@ async function fetchWikiImages(jpNames) {
 
   try {
     const response = await fetch(url);
-    if (!response.ok) return;
+    if (!response.ok) { console.error('Wikipedia API error:', response.status); return; }
     const data = await response.json();
 
     const titleMap = {};
@@ -1088,11 +1120,11 @@ function setupBottomNav() {
   function updateNavTransparency() {
     const heroHeight = hero.offsetHeight;
     const scrollY = window.scrollY;
-    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.15)));
+    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * SCROLL_PROGRESS_FACTOR)));
 
-    const bgAlpha = 0.82 * progress;
+    const bgAlpha = NAV_BG_ALPHA_MAX * progress;
     bottomNav.style.background = `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
-    bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(0.08 * progress).toFixed(3)})`;
+    bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(NAV_BORDER_ALPHA_MAX * progress).toFixed(3)})`;
     bottomNav.classList.toggle('is-hero', progress < 0.5);
   }
 
@@ -1299,7 +1331,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         footerAuthor.innerHTML = `Chung-Yao 編製 <span class="footer-version">v${version}</span>`;
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error('Failed to fetch sw.js for version info:', err);
       const footerAuthor = document.querySelector('.footer-author');
       if (footerAuthor) {
         footerAuthor.innerHTML = `Chung-Yao 編製`;
