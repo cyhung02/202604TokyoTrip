@@ -1,15 +1,24 @@
 // Service Worker for Tokyo Trip PWA
 
-const APP_VERSION = '2.12.16';
+const APP_VERSION = '2.14.0';
+const FONT_CACHE_VERSION = '3';
 const CACHE_NAME = `tokyo-trip-v${APP_VERSION}`;
-const FONT_CACHE = 'tokyo-trip-fonts-v3';
+const FONT_CACHE = `tokyo-trip-fonts-v${FONT_CACHE_VERSION}`;
+
+// Abort-based fetch timeout helper
+function fetchWithTimeout(request, ms = 5000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(request, { signal: controller.signal })
+    .finally(() => clearTimeout(timer));
+}
 
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './data.js',
-  './itinerary.js',
+  './itinerary.json',
   './app.js',
   './manifest.json',
   './icons/icon-192.png',
@@ -55,7 +64,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(FONT_CACHE).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
-          const fetchPromise = fetch(request).then((networkResponse) => {
+          const fetchPromise = fetchWithTimeout(request).then((networkResponse) => {
             cache.put(request, networkResponse.clone());
             return networkResponse;
           }).catch(() => cachedResponse);
@@ -91,9 +100,3 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Background sync for offline actions (future enhancement)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-checklist') {
-    console.log('Background sync triggered');
-  }
-});

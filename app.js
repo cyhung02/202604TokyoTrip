@@ -5,6 +5,15 @@
 // Configure marked
 marked.use({ breaks: true });
 
+// Parse markdown from trusted-but-validated content (itinerary.json).
+// Strip any raw HTML tags in the source before handing to marked,
+// so injected <script>/<img onerror=…> etc. cannot execute.
+function safeParse(md) {
+  if (!md) return '';
+  const stripped = String(md).replace(/<[^>]*>/g, '');
+  return marked.parse(stripped);
+}
+
 // ========================================
 // DOM Elements
 // ========================================
@@ -28,15 +37,62 @@ const installDismiss = document.getElementById('install-dismiss');
 let currentDay = 1;
 let currentInfo = 'sakura';
 let deferredPrompt = null;
-let checkedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
-let customItems = JSON.parse(localStorage.getItem('customItems') || '[]');
-let weatherCache = JSON.parse(localStorage.getItem('weatherCache') || '{}');
-let aiAdviceCache = JSON.parse(localStorage.getItem('aiAdviceCache') || '{}');
+let checkedItems = lsGet(LS_CHECKED_ITEMS, {});
+let customItems = lsGet(LS_CUSTOM_ITEMS, []);
+let weatherCache = lsGet(LS_WEATHER_CACHE, {});
+let aiAdviceCache = lsGet(LS_AI_ADVICE_CACHE, {});
 let currentWeatherLocation = 'tokyo';
 let selectedWeatherDate = null;
 let allWeatherData = {};
-let wikiImageCache = JSON.parse(localStorage.getItem('wikiImageCache') || '{}');
+let wikiImageCache = lsGet(LS_WIKI_IMAGE_CACHE, {});
 const WIKI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+let itinerary = null;
+
+// ========================================
+// Constants
+// ========================================
+
+const CACHE_TTL_MS = 15 * 60 * 1000;
+const EN_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const SCROLL_PROGRESS_FACTOR = 0.15;
+const NAV_BG_ALPHA_MAX = 0.82;
+const NAV_BORDER_ALPHA_MAX = 0.08;
+
+// localStorage keys — single source of truth to avoid silent typo bugs
+const LS_CHECKED_ITEMS = 'checkedItems';
+const LS_CUSTOM_ITEMS = 'customItems';
+const LS_WEATHER_CACHE = 'weatherCache';
+const LS_AI_ADVICE_CACHE = 'aiAdviceCache';
+const LS_WIKI_IMAGE_CACHE = 'wikiImageCache';
+
+// Safe localStorage helpers — guards against JSON.parse errors and QuotaExceededError
+function lsGet(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function lsSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // QuotaExceededError or other storage errors — silently ignore
+  }
+}
+
+// Escape HTML special characters to prevent XSS when rendering untrusted text
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // Weather API configuration (Open-Meteo Forecast API)
 // Uses best_match model which combines JMA MSM (short-term) and ECMWF (medium-term)
@@ -123,9 +179,14 @@ async function fetchWeatherForLocation(locationKey) {
   }
   
   const data = await response.json();
+  if (!data.daily || !data.daily.time?.length ||
+      !data.hourly || !data.hourly.time?.length ||
+      !data.current) {
+    throw new Error('Unexpected API response structure');
+  }
   data.location_name = location.name;
   data.location_icon = location.icon;
-  
+
   return data;
 }
 
@@ -145,11 +206,11 @@ function buildDailyAIInput(rawData, dateStr) {
     .filter(item => item.time.startsWith(dateStr))
     .map(item => ({
       time: hourly.time[item.index],
-      is_day: hourly.is_day[item.index],
-      temperature_c: hourly.temperature_2m[item.index],
-      apparent_temperature_c: hourly.apparent_temperature[item.index],
-      precip_probability_pct: hourly.precipitation_probability[item.index],
-      freezing_level_height_m: hourly.freezing_level_height[item.index]
+      is_day: hourly.is_day?.[item.index],
+      temperature_c: hourly.temperature_2m?.[item.index],
+      apparent_temperature_c: hourly.apparent_temperature?.[item.index],
+      precip_probability_pct: hourly.precipitation_probability?.[item.index],
+      freezing_level_height_m: hourly.freezing_level_height?.[item.index]
     }));
   
   const weatherCode = daily.weather_code[dateIndex];
@@ -204,7 +265,9 @@ async function initWeatherSection() {
 async function loadWeatherData(locationKey) {
   const currentCard = document.getElementById('weather-current-card');
   const grid = document.getElementById('weather-7day-grid');
-  
+
+  if (!currentCard || !grid) return;
+
   currentCard.innerHTML = `<div class="wx-hero-loader"><div class="wx-spinner"></div></div>`;
   grid.innerHTML = `<div class="wx-days-loader"><div class="wx-spinner"></div></div>`;
   
@@ -214,17 +277,28 @@ async function loadWeatherData(locationKey) {
   try {
     let data;
     const cacheKey = `weather_${locationKey}`;
-    const cached = weatherCache[cacheKey];
     const now = Date.now();
-    
-    if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
+
+    // Evict expired entries from weatherCache to keep localStorage lean
+    for (const key of Object.keys(weatherCache)) {
+      if ((now - weatherCache[key].timestamp) >= CACHE_TTL_MS) {
+        delete weatherCache[key];
+      }
+    }
+
+    const cached = weatherCache[cacheKey];
+    if (cached) {
       data = cached.data;
     } else {
       data = await fetchWeatherForLocation(locationKey);
       weatherCache[cacheKey] = { data, timestamp: now };
-      localStorage.setItem('weatherCache', JSON.stringify(weatherCache));
+      lsSet(LS_WEATHER_CACHE, weatherCache);
     }
-    
+
+    // allWeatherData is in-memory only; cap to known location count to avoid unbounded growth
+    if (!Object.keys(WEATHER_LOCATIONS).includes(locationKey)) {
+      throw new Error(`Unknown location key: ${locationKey}`);
+    }
     allWeatherData[locationKey] = data;
     renderCurrentWeather(data);
     render7DayForecast(data, locationKey);
@@ -302,11 +376,10 @@ function render7DayForecast(data, locationKey) {
   if (!grid || !data.daily) return;
   
   const daily = data.daily;
-  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+
   grid.innerHTML = daily.time.map((dateStr, index) => {
     const date = new Date(dateStr);
-    const dayChar = enDays[date.getDay()];
+    const dayChar = EN_DAYS[date.getDay()];
     const dateNum = date.getDate();
     const weather = getWeatherInfo(daily.weather_code[index]);
     const tempMax = Math.round(daily.temperature_2m_max[index]);
@@ -334,17 +407,16 @@ function render7DayForecast(data, locationKey) {
     `;
   }).join('');
   
-  // Add click handlers
-  grid.querySelectorAll('.wx-day').forEach(card => {
-    card.addEventListener('click', handleWeather7DayClick);
-  });
+  // Use event delegation to avoid accumulating listeners on re-render
+  grid.onclick = handleWeather7DayClick;
 }
 
 /**
  * Handle click on 7-day forecast card
  */
 function handleWeather7DayClick(e) {
-  const card = e.currentTarget;
+  const card = e.target.closest('.wx-day');
+  if (!card) return;
   const dateStr = card.dataset.date;
   const locationKey = card.dataset.location;
   
@@ -374,8 +446,7 @@ function renderWeatherDetail(dayInput) {
   const dateNum = date.getDate();
   const month = date.getMonth() + 1;
   const weather = getWeatherInfo(dayInput.weather_code);
-  const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const dayChar = enDays[date.getDay()];
+  const dayChar = EN_DAYS[date.getDay()];
   
   const sunrise = dayInput.sunrise
     ? new Date(dayInput.sunrise).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -473,12 +544,8 @@ function showWeatherError() {
   const grid = document.getElementById('weather-7day-grid');
   
   if (currentCard) {
-    currentCard.innerHTML = `
-      <div class="wx-error">
-        <p>無法載入天氣</p>
-        <button onclick="loadWeatherData('${currentWeatherLocation}')">重試</button>
-      </div>
-    `;
+    currentCard.innerHTML = `<div class="wx-error"><p>無法載入天氣</p><button type="button" class="wx-retry-btn">重試</button></div>`;
+    currentCard.querySelector('.wx-retry-btn').addEventListener('click', () => loadWeatherData(currentWeatherLocation));
   }
   
   if (grid) {
@@ -498,7 +565,7 @@ async function fetchWeatherAIAdvice(dayInput) {
   const cached = aiAdviceCache[cacheKey];
   const now = Date.now();
   
-  if (cached && (now - cached.timestamp) < 15 * 60 * 1000) {
+  if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
     renderWeatherAIAdvice(cached.data, dayInput);
     return;
   }
@@ -515,7 +582,7 @@ async function fetchWeatherAIAdvice(dayInput) {
     const advice = await response.json();
     
     aiAdviceCache[cacheKey] = { data: advice, timestamp: now };
-    localStorage.setItem('aiAdviceCache', JSON.stringify(aiAdviceCache));
+    lsSet(LS_AI_ADVICE_CACHE, aiAdviceCache);
     
     renderWeatherAIAdvice(advice, dayInput);
     
@@ -531,29 +598,38 @@ async function fetchWeatherAIAdvice(dayInput) {
 function renderWeatherAIAdvice(advice, dayInput) {
   const summaryEl = document.getElementById('wx-ai-summary');
   if (summaryEl) {
-    summaryEl.innerHTML = `<p>${advice.summary}</p>`;
+    const p = document.createElement('p');
+    p.textContent = advice.summary;
+    summaryEl.innerHTML = '';
+    summaryEl.appendChild(p);
   }
-  
+
   const outfitEl = document.getElementById('wx-ai-outfit');
   if (outfitEl) {
+    // Remove any warning element left from a previous render
+    const prevWarning = outfitEl.nextElementSibling;
+    if (prevWarning && prevWarning.classList.contains('wx-detail-alert')) {
+      prevWarning.remove();
+    }
+
     const accessories = advice.accessories && advice.accessories.length > 0
-      ? advice.accessories.map(a => `<span>${a}</span>`).join('')
+      ? advice.accessories.map(a => `<span>${escapeHtml(a)}</span>`).join('')
       : '<span>—</span>';
-    
+
     outfitEl.innerHTML = `
       <h3>穿搭建議</h3>
       <div class="wx-detail-outfit-grid">
         <div class="wx-detail-outfit-item">
           <label>上身</label>
-          <p>${advice.top}</p>
+          <p>${escapeHtml(advice.top)}</p>
         </div>
         <div class="wx-detail-outfit-item">
           <label>下身</label>
-          <p>${advice.bottoms}</p>
+          <p>${escapeHtml(advice.bottoms)}</p>
         </div>
         <div class="wx-detail-outfit-item">
           <label>鞋類</label>
-          <p>${advice.footwear}</p>
+          <p>${escapeHtml(advice.footwear)}</p>
         </div>
         <div class="wx-detail-outfit-item wx-detail-outfit-acc">
           <label>配件</label>
@@ -561,11 +637,14 @@ function renderWeatherAIAdvice(advice, dayInput) {
         </div>
       </div>
     `;
-    
+
     if (advice.warning) {
       const warningEl = document.createElement('div');
       warningEl.className = 'wx-detail-alert';
-      warningEl.innerHTML = `<span>!</span>${advice.warning}`;
+      const icon = document.createElement('span');
+      icon.textContent = '!';
+      warningEl.appendChild(icon);
+      warningEl.appendChild(document.createTextNode(advice.warning));
       outfitEl.after(warningEl);
     }
   }
@@ -582,13 +661,8 @@ function showWeatherAIError(dayInput) {
   
   const outfitEl = document.getElementById('wx-ai-outfit');
   if (outfitEl) {
-    outfitEl.innerHTML = `
-      <h3>穿搭建議</h3>
-      <div class="wx-ai-error">
-        <p>讀取失敗</p>
-        <button onclick="retryWeatherAI()">重試</button>
-      </div>
-    `;
+    outfitEl.innerHTML = `<h3>穿搭建議</h3><div class="wx-ai-error"><p>讀取失敗</p><button type="button" class="wx-retry-btn">重試</button></div>`;
+    outfitEl.querySelector('.wx-retry-btn').addEventListener('click', retryWeatherAI);
   }
 }
 
@@ -653,23 +727,25 @@ function renderCustomItems() {
   container.innerHTML = customItems.map((item, index) => `
     <li class="checklist-item ${checkedItems['custom_' + index] ? 'checked' : ''}" data-item="custom_${index}">
       <span class="checklist-checkbox"></span>
-      <span class="custom-item-text">${item}</span>
+      <span class="custom-item-text">${escapeHtml(item)}</span>
       <button class="delete-item-btn" data-index="${index}" aria-label="刪除項目">×</button>
     </li>
   `).join('');
 }
 
 function addCustomItem(text) {
-  if (!text.trim()) return;
-  customItems.push(text.trim());
-  localStorage.setItem('customItems', JSON.stringify(customItems));
+  const trimmed = text.trim();
+  if (!trimmed) return;
+  if (trimmed.length > 50) { showToast('項目名稱不能超過 50 字'); return; }
+  customItems.push(trimmed);
+  lsSet(LS_CUSTOM_ITEMS, customItems);
   renderCustomItems();
   showToast('已新增項目');
 }
 
 function deleteCustomItem(index) {
   customItems.splice(index, 1);
-  localStorage.setItem('customItems', JSON.stringify(customItems));
+  lsSet(LS_CUSTOM_ITEMS, customItems);
 
   // Re-index checked states so they stay aligned with the array after removal
   const updated = {};
@@ -678,7 +754,8 @@ function deleteCustomItem(index) {
       updated[key] = checkedItems[key];
       continue;
     }
-    const i = parseInt(key.split('_')[1]);
+    const i = parseInt(key.split('_')[1], 10);
+    if (isNaN(i)) { updated[key] = checkedItems[key]; continue; }
     if (i < index) {
       updated[key] = checkedItems[key];
     } else if (i > index) {
@@ -686,7 +763,7 @@ function deleteCustomItem(index) {
     }
   }
   checkedItems = updated;
-  localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+  lsSet(LS_CHECKED_ITEMS, checkedItems);
 
   renderCustomItems();
   showToast('已刪除項目');
@@ -722,15 +799,13 @@ function speakJapanese(text) {
 // ========================================
 
 function getTodayDay() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const tripStart = new Date(TRIP_START_DATE);
-  tripStart.setHours(0, 0, 0, 0);
-  
-  const diffTime = today.getTime() - tripStart.getTime();
+  // Use Asia/Tokyo timezone for both sides to avoid UTC offset issues
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+  const tripStartStr = TRIP_START_DATE.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+
+  const diffTime = new Date(todayStr).getTime() - new Date(tripStartStr).getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays >= 0 && diffDays < 8) {
     return diffDays + 1;
   }
@@ -739,9 +814,10 @@ function getTodayDay() {
 
 
 function renderHotels() {
+  if (!hotelTimeline) return;
   hotelTimeline.innerHTML = hotels.map(hotel => `
     <div class="hotel-card-wrapper">
-      <div class="hotel-card" onclick="this.classList.toggle('expanded')">
+      <div class="hotel-card">
         <div class="hotel-dates">
           <span>${hotel.checkIn} → ${hotel.checkOut}</span>
           <span class="hotel-nights">${hotel.nights} 晚</span>
@@ -761,7 +837,7 @@ function renderHotels() {
             <span class="hotel-detail-label">特色</span>
             <span class="hotel-detail-value">${hotel.features}</span>
           </div>
-          <a href="https://www.google.com/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener noreferrer" class="maps-btn maps-btn-full" onclick="event.stopPropagation()">
+          <a href="https://www.google.com/maps/search/${encodeURIComponent(hotel.name)}" target="_blank" rel="noopener noreferrer" class="maps-btn maps-btn-full">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
@@ -773,6 +849,12 @@ function renderHotels() {
       </div>
     </div>
   `).join('');
+
+  hotelTimeline.addEventListener('click', (e) => {
+    if (e.target.closest('.maps-btn')) return;
+    const card = e.target.closest('.hotel-card');
+    if (card) card.classList.toggle('expanded');
+  });
 }
 
 // ========================================
@@ -793,7 +875,7 @@ async function fetchWikiImages(jpNames) {
 
   try {
     const response = await fetch(url);
-    if (!response.ok) return;
+    if (!response.ok) { console.error('Wikipedia API error:', response.status); return; }
     const data = await response.json();
 
     const titleMap = {};
@@ -834,7 +916,7 @@ async function fetchWikiImages(jpNames) {
       }
     }
 
-    localStorage.setItem('wikiImageCache', JSON.stringify(wikiImageCache));
+    lsSet(LS_WIKI_IMAGE_CACHE, wikiImageCache);
   } catch (error) {
     console.error('Wikipedia image fetch error:', error);
   }
@@ -887,6 +969,7 @@ function injectSpotImage(card, imageUrl) {
 }
 
 function renderDayContent(day) {
+  if (!itinerary) return;
   const data = itinerary.find(d => d.day === day);
   if (!data) return;
 
@@ -909,7 +992,7 @@ function renderDayContent(day) {
             </a>
           </div>
           ${spot.hours ? `<div class="spot-hours">${spot.hours}</div>` : ''}
-          <div class="spot-desc markdown-content">${marked.parse(spot.desc)}</div>
+          <div class="spot-desc markdown-content">${safeParse(spot.desc)}</div>
         </div>
       `).join('')}
     </div>
@@ -922,7 +1005,7 @@ function renderDayContent(day) {
         ${data.food.map(f => `
           <div class="food-item">
             <span class="food-place">${f.place}</span>
-            <span class="food-name markdown-content">${marked.parse(f.name)}</span>
+            <span class="food-name markdown-content">${safeParse(f.name)}</span>
           </div>
         `).join('')}
       </div>
@@ -936,7 +1019,7 @@ function renderDayContent(day) {
         ${data.transport.map(t => `
           <div class="transport-item">
             <span class="transport-name">${t.name}</span>
-            <span class="transport-desc markdown-content">${marked.parse(t.desc)}</span>
+            <span class="transport-desc markdown-content">${safeParse(t.desc)}</span>
           </div>
         `).join('')}
       </div>
@@ -1086,11 +1169,11 @@ function setupBottomNav() {
   function updateNavTransparency() {
     const heroHeight = hero.offsetHeight;
     const scrollY = window.scrollY;
-    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.15)));
+    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * SCROLL_PROGRESS_FACTOR)));
 
-    const bgAlpha = 0.82 * progress;
+    const bgAlpha = NAV_BG_ALPHA_MAX * progress;
     bottomNav.style.background = `rgba(250, 248, 245, ${bgAlpha.toFixed(3)})`;
-    bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(0.08 * progress).toFixed(3)})`;
+    bottomNav.style.borderTopColor = `rgba(26, 54, 93, ${(NAV_BORDER_ALPHA_MAX * progress).toFixed(3)})`;
     bottomNav.classList.toggle('is-hero', progress < 0.5);
   }
 
@@ -1177,7 +1260,7 @@ infoContent.addEventListener('click', (e) => {
     item.classList.toggle('checked');
     const key = item.dataset.item;
     checkedItems[key] = item.classList.contains('checked');
-    localStorage.setItem('checkedItems', JSON.stringify(checkedItems));
+    lsSet(LS_CHECKED_ITEMS, checkedItems);
   }
 });
 
@@ -1223,22 +1306,37 @@ installDismiss.addEventListener('click', () => {
 // Initialization
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Auto-select today's day if within trip dates
   currentDay = getTodayDay();
-  
+
   // Update day tabs to show dates instead of "Day X"
   updateDayTabsWithDates();
-  
+
   renderHotels();
-  renderDayContent(currentDay);
-  renderInfoContent(currentInfo);
-  renderPhrases();
   setupBottomNav();
-  
+
   // Initialize weather section
   setupWeatherLocationSelector();
   initWeatherSection();
+
+  // Defer non-critical below-fold renders until browser is idle
+  const requestIdle = window.requestIdleCallback || (cb => setTimeout(cb, 0));
+  requestIdle(() => {
+    renderInfoContent(currentInfo);
+    renderPhrases();
+  });
+
+  // Load itinerary async — does not block initial render
+  dayContent.innerHTML = '<div class="day-loading">載入行程中…</div>';
+  try {
+    const res = await fetch('itinerary.json');
+    itinerary = await res.json();
+    renderDayContent(currentDay);
+  } catch (e) {
+    console.error('Failed to load itinerary:', e);
+    dayContent.innerHTML = '<p class="day-loading">行程載入失敗，請重新整理頁面。</p>';
+  }
   
   // Pre-load speech synthesis voices
   if ('speechSynthesis' in window) {
@@ -1282,7 +1380,8 @@ document.addEventListener('DOMContentLoaded', () => {
         footerAuthor.innerHTML = `Chung-Yao 編製 <span class="footer-version">v${version}</span>`;
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error('Failed to fetch sw.js for version info:', err);
       const footerAuthor = document.querySelector('.footer-author');
       if (footerAuthor) {
         footerAuthor.innerHTML = `Chung-Yao 編製`;
